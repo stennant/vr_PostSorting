@@ -14,6 +14,7 @@ import vr_process_movement
 import vr_parameters
 #import signal_for_indices
 import vr_open_ephys_IO
+import gc
 
 #fr = file_reader.FileReader()
 
@@ -83,54 +84,103 @@ def get_beginning_of_track_positions(prm, location):
 
     return track_beginnings
 
-
-
-
-
+"""""
 def load_trial_types_from_continuous(prm):
-
-    file_path = prm.get_filepath() + prm.first_trial_channel() #todo this should bw in params, it is 100 for me, 105 for Tizzy (I don't have _0)
+    first=[]
+    second=[]
+    file_path = prm.get_filepath() + prm.get_first_trial_channel() #todo this should bw in params, it is 100 for me, 105 for Tizzy (I don't have _0)
     trial_first = vr_open_ephys_IO.get_data_continuous(prm, file_path)
+    first.append(trial_first)
+    first = np.asarray(first)
     print('first trial channel loaded')
-    file_path = prm.get_filepath() + prm.second_trial_channel() #todo this should bw in params, it is 100 for me, 105 for Tizzy (I don't have _0)
+    file_path = prm.get_filepath() + prm.get_second_trial_channel() #todo this should bw in params, it is 100 for me, 105 for Tizzy (I don't have _0)
     trial_second = vr_open_ephys_IO.get_data_continuous(prm, file_path)
+    second.append(trial_second)
+    second = np.asarray(second)
     print('second trial channel loaded')
+
+    trial_numbers = np.load(prm.get_filepath() + "Behaviour/Data/trial_numbers.npy")
+    trials=np.unique(trial_numbers)
+    data=np.hstack((first,second,trial_numbers))
+    print(data.shape)
 
     if os.path.isfile(prm.get_behaviour_data_path() + "/con_trial_type.npy") is False:
         trial_type = []
-        for p,point in np.enumerate(file_path):
-            ttp=0
-            if (trial_first[p] <5 and trial_second[p] <5):
-                ttp=0
-            elif (trial_first[p] > 5 and trial_second[p] < 5):
-                ttp=1
-            elif (trial_first[p] > 5 and trial_second[p] > 5):
-                ttp=2
-            trial_type=np.append(trial_type,ttp)
+        for tcount,trial in enumerate(trials):
+            tdata = data[data[:,2] ==trial,:]
+            if (np.mean(tdata[:,0]) <5 and np.mean(tdata[:,1]) <5):
+                trial_type=np.append(trial_type, 2)
+            elif (np.mean(tdata[:,0]) >5 and np.mean(tdata[:,1]) <5):
+                 trial_type=np.append(trial_type, 1)
+            elif (np.mean(tdata[:,0]) >5 and np.mean(tdata[:,1]) >5):
+                 trial_type=np.append(trial_type, 0)
         np.save(prm.get_filepath() + "Behaviour/Data/con_trial_type.npy", trial_type)
-
+    print('trial types loaded from continuous')
     return trial_type
 
 
 
-def split_trial_types(prm, location, trial_type):
+"""""
+
+def load_trial_types_from_continuous(prm):
+
+    first=[]
+    file_path = prm.get_filepath() + prm.get_first_trial_channel() #todo this should bw in params, it is 100 for me, 105 for Tizzy (I don't have _0)
+    trial_first = vr_open_ephys_IO.get_data_continuous(prm, file_path)
+    first.append(trial_first)
+    first = np.asarray(first)
+    print('first trial channel loaded')
+
+    second=[]
+    file_path = prm.get_filepath() + prm.get_second_trial_channel() #todo this should bw in params, it is 100 for me, 105 for Tizzy (I don't have _0)
+    trial_second = vr_open_ephys_IO.get_data_continuous(prm, file_path)
+    second.append(trial_second)
+    second = np.asarray(second)
+    print('second trial channel loaded')
+
+    return first, second
+
+
+def calculate_trial_types_from_continuous(prm, first,second):
+
+    print('loading trial types...')
+    if os.path.isfile(prm.get_behaviour_data_path() + "/con_trial_type.npy") is False:
+        trial_type = np.zeros((first.shape[1]))
+        for point,p in enumerate(first[0,:]):
+            if (p < 5 and p < 5):
+                trial_type[point] = 0
+            elif (p > 5 and p < 5):
+                trial_type[point] = 1
+            else:
+                trial_type[point] = 2
+        trial_type = vr_process_movement.remove_beginning_and_end(prm,trial_type)
+        np.save(prm.get_filepath() + "Behaviour/Data/con_trial_type.npy", trial_type)
+    else:
+        trial_type = np.load(prm.get_filepath() + "Behaviour/Data/con_trial_type.npy")
+    print('trial types loaded from continuous')
+    return trial_type
+
+
+
+def split_location_from_trial_types(prm, location, trial_type):
     global beaconed
     global nbeaconed
     global probe
-    global trial_num
+
+    print('splitting location data based on trial type...')
     if os.path.isfile(prm.get_behaviour_data_path() + "/beaconed.npy") is False:
         beaconed = []
         nbeaconed = []
         probe = []
-        trial_num = 1
 
-        for loc, loc_count in enumerate(range(len(location))):
-            if trial_type == 2:
-                probe.append(location[loc_count])
-            elif trial_type == 1:
-                nbeaconed.append(location[loc_count])
+        print(location.shape,trial_type.shape,'split_location_from_trial_types')
+        for loc, loc_count in enumerate(trial_type):
+            if loc == 2:
+                probe.append(location[loc])
+            elif loc == 1:
+                nbeaconed.append(location[loc])
             else:
-                beaconed.append(location[loc_count])
+                beaconed.append(location[loc])
         np.save(prm.get_filepath() + "Behaviour/Data/beaconed.npy", beaconed)
         np.save(prm.get_filepath() + "Behaviour/Data/nbeaconed.npy", nbeaconed)
         np.save(prm.get_filepath() + "Behaviour/Data/probe.npy", probe)
@@ -144,17 +194,26 @@ def split_trial_types(prm, location, trial_type):
 
 def trial_numbers(prm,location):
     global trial_num
-    if os.path.isfile(prm.get_behaviour_data_path() + "/beaconed.npy") is False:
+    trials = np.zeros((len(location)))
+
+    print('loading trial numbers...')
+
+    if os.path.isfile(prm.get_behaviour_data_path() + "/trial_num.npy") is False:
         trial_num = 1
         for i in range(len(location)):
             if i > 0 and (location[i-1]-location[i]) > 150:
                 trial_num += 1
-        np.save(prm.get_filepath() + "Behaviour/Data/trial_num.npy", trial_num)
-    else:
-        trial_num = np.load(prm.get_filepath() + "Behaviour/Data/trial_num.npy")
+            trials[i] = trial_num
+
+        np.save(prm.get_behaviour_data_path() + "/trial_numbers", trials)
+        np.save(prm.get_behaviour_data_path() + "/trial_num", trial_num)
+    #else:
+    #    trial_num = np.load(prm.get_behaviour_data_path() + "/trial_num.npy")
+    #    trials = np.load(prm.prm.get_behaviour_data_path() + "/trial_numbers.npy")
+    print('trial numbers loaded')
 
 
-"""""
+""""
 def beaconed_nbeaconed_probe(prm, location, trial_type):
     global beaconed
     global nbeaconed
@@ -184,15 +243,17 @@ def beaconed_nbeaconed_probe(prm, location, trial_type):
         probe = np.load(prm.get_filepath() + "Behaviour/Data/probe.npy")
         trial_num = np.load(prm.get_filepath() + "Behaviour/Data/trial_num.npy")
     return beaconed, nbeaconed, probe, trial_num
-"""""
+
+"""
 
 
 
 # If beaconed, non-beaconed and probe arrays don't exist, the functions to create them are called here
 def cached_trial_type(prm, location):
     if os.path.isfile(prm.get_filepath() + "Behaviour/Data/beaconed.npy") is False or os.path.isfile(prm.get_filepath() + "Behaviour/Data/probe.npy") is False:
-        trial_types=load_trial_types_from_continuous(prm)
-        beaconed_trials, nbeaconed_trials, probe_trials = split_trial_types(prm,location, trial_types)
+        first,second = load_trial_types_from_continuous(prm)
+        trial_types = calculate_trial_types_from_continuous(prm, first,second)
+        beaconed_trials, nbeaconed_trials, probe_trials = split_location_from_trial_types(prm,location, trial_types)
 
         np.save(prm.get_filepath() + "Behaviour/Data/beaconed", beaconed_trials)
         np.save(prm.get_filepath() + "Behaviour/Data/nbeaconed", nbeaconed_trials)
@@ -205,6 +266,7 @@ def cached_trial_type(prm, location):
 
 
 
+
 # Calculate beaconed, non-beaconed and probe trial indices, and save them if they don't exist yet
 def save_or_open_trial_arrays(prm):
     # Check for empty files and delete them if there are any
@@ -214,9 +276,8 @@ def save_or_open_trial_arrays(prm):
         #    print('---FILE ERROR: The size of '+file+' is 0, something is wrong.---')
     location = np.load(prm.get_filepath() + '/Behaviour/Data/location.npy')
 
-    beaconed_trials, nbeaconed_trials, probe_trials \
-        = cached_trial_type(prm, location)
-
     trial_numbers(prm,location)
+
+    beaconed_trials, nbeaconed_trials, probe_trials = cached_trial_type(prm, location)
 
     return beaconed_trials, nbeaconed_trials, probe_trials
