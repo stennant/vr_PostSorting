@@ -11,6 +11,8 @@ import vr_plot_continuous_data
 import vr_fft
 import vr_oscillations
 import vr_rewrite_continuous_data
+import vr_optogenetics
+import vr_optogenetics_behaviour
 
 prm = vr_parameters.Parameters()
 
@@ -46,7 +48,7 @@ Initializes parameters
 
 def init_params():
 
-    filename = '707_D22_2018-03-13_12-15-19'
+    filename = '2018-02-12_11-22-14'
     #filename = '552_D10_2018-03-09_15-39-54' # test with
 
     prm.set_filepath('/Users/sarahtennant/Work/Analysis/Opto/Ephys/PVCre1/' + str(filename))
@@ -79,11 +81,11 @@ def process_a_dir(dir_name):
     if prm.is_vr is True:
 
         #following functions process movement information and plot stops per trial
-        #vr_process_movement.save_or_open_movement_arrays(prm)
+        vr_process_movement.save_or_open_movement_arrays(prm)
         #print('movement has been analysed')
-        #vr_trial_types.save_or_open_trial_arrays(prm)
+        vr_trial_types.save_or_open_trial_arrays(prm)
         #print('trial type information has been analysed')
-        #vr_plot_stops.plot_stops(prm)
+        vr_plot_stops.plot_stops(prm)
         #print('Stops have been plotted')
 
         # plot firing times of clusters against location
@@ -91,24 +93,29 @@ def process_a_dir(dir_name):
         #print('Firing times have been plotted')
 
         #load continuous data
-        vr_plot_continuous_data.load_and_plot_continuous_raw(prm)
-        print('continuous raw data has been loaded and plotted')
+        #vr_plot_continuous_data.load_and_plot_continuous_raw(prm)
+        #print('continuous raw data has been loaded and plotted')
 
         #reference continuous data
         #vr_plot_continuous_data.load_and_plot_continuous_referenced(prm)
         #print('continuous referenced data has been loaded and plotted')
 
         #plot power spectrum
-        vr_fft.calculate_and_plot_power_spectrum(prm)
-        print('power spectrum has been loaded and plotted')
+        #vr_fft.calculate_and_plot_power_spectrum(prm)
+        #print('power spectrum has been loaded and plotted')
 
         # filter continuous data for theta and gamma
         #vr_oscillations.load_and_plot_theta_and_gamma(prm)
         #print('data filtered for theta and gamma activity')
 
-        #rewrite channels as referenced data
-        #vr_rewrite_continuous_data.load_and_rewrite_continuous_data(prm)
-        #print('continuous referenced data has been loaded and rewritten')
+        # load and process optogenetics
+        #vr_optogenetics.load_and_process_opto_channel(prm)
+        #print('optogenetics processed')
+
+        # load and plot stops with opto highlighted
+        #vr_plot_stops.plot_opto_stops(prm)
+
+        #vr_optogenetics_behaviour.load_and_plot_speed(prm)
 
 
 def process_files():

@@ -120,6 +120,7 @@ def get_data_for_stops_on_trials(prm):
 
 
 def get_stops_on_trials_find_stops(location, number_of_trials, all_stops, track_beginnings):
+    print('extracting stops...')
     stops_on_trials = []
     location = np.asanyarray(location)
     number_of_trials = np.asanyarray(number_of_trials)
@@ -140,6 +141,7 @@ def get_stops_on_trials_find_stops(location, number_of_trials, all_stops, track_
             stops = np.take(location, stops_on_trial)
 
             stops_on_trials.append(stops)
+    print('stops extracted')
     return stops_on_trials
 
 

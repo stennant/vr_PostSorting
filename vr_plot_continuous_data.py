@@ -83,7 +83,7 @@ def load_reference_channel(prm, channel):
     referenced_data_all.append(referenced_data)
     referenced_data_all = np.asarray(referenced_data_all)
 
-    return referenced_data_all[:,0:150000] # just first 3 seconds
+    return referenced_data_all # just first 3 seconds
 
 
 

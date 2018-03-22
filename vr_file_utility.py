@@ -37,6 +37,7 @@ def create_behaviour_folder_structure(prm):
 
     stops_plots_path = analysis_path + '/stops_on_track'
     spikes_plots_path = analysis_path + '/spikes_on_track'
+    speed_plots_path = analysis_path + '/speed'
 
     if os.path.exists(movement_path) is False:
         print('Behavioural data will be saved in {}.'.format(movement_path))
@@ -45,6 +46,7 @@ def create_behaviour_folder_structure(prm):
         os.makedirs(analysis_path)
         os.makedirs(stops_plots_path)
         os.makedirs(spikes_plots_path)
+        os.makedirs(speed_plots_path)
 
 
 def create_ephys_folder_structure(prm):
@@ -59,8 +61,17 @@ def create_ephys_folder_structure(prm):
 
     oscillations_path = ephys_path + '/theta_and_gamma'
 
+    opto_path = ephys_path + '/opto_stimulation'
+    opto_continuous_path = opto_path + '/continuous'
+    opto_continuous_raw_path = opto_continuous_path + '/raw'
+    opto_continuous_filtered_path = opto_continuous_path + '/filtered'
+
     fft_path = ephys_path + '/fft'
     prm.set_fft_path(fft_path)
+
+    fft_opto_path = opto_path + '/fft'
+
+    theta_opto_path = opto_path + '/theta'
 
     spike_path = ephys_path + '/spike_sorting'
     prm.set_spike_path(spike_path)
@@ -83,8 +94,14 @@ def create_ephys_folder_structure(prm):
 
     if os.path.exists(ephys_path) is False:
         os.makedirs(ephys_path)
-        os.makedirs(spike_path)
+        #os.makedirs(spike_path)
         os.makedirs(continuous_path)
+        os.makedirs(opto_path)
+        os.makedirs(fft_opto_path)
+        os.makedirs(theta_opto_path)
+        os.makedirs(opto_continuous_path)
+        os.makedirs(opto_continuous_raw_path)
+        os.makedirs(opto_continuous_filtered_path)
         os.makedirs(continuous_raw_path)
         os.makedirs(continuous_ref_path)
         os.makedirs(oscillations_path)
@@ -102,8 +119,8 @@ def create_ephys_folder_structure(prm):
         os.makedirs(sorting_t3_path_continuous)
         os.makedirs(sorting_t4_path_continuous)
 
-        os.makedirs(analysis_path)
-        os.makedirs(data_path)
+        #os.makedirs(analysis_path)
+        #os.makedirs(data_path)
 
 
 def create_folder_structure(prm):

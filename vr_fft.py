@@ -38,7 +38,7 @@ def power_spectrum_log(prm, channel, sampling_rate, color, filename, title="$Pow
 #    plt.legend(frameon=False)
 
     plt.xlim([0, x_lim])
-    plt.ylim([5, 1000])
+    plt.ylim([5, 150])
     plt.xlabel('$Frequency (Hz)$')
     plt.ylabel('$PSD (V^2/Hz)$')
     plt.savefig(filename + ".png")
@@ -83,7 +83,7 @@ def plot_power_spectrum(prm, channel_all_data, channel):
         #plt.yticks([10, 100, 1000])
 
 
-        power_spectrum_log(prm, channel_all_data, 30000, 'k', prm.get_filename(), title="$Power spectrum$", x_lim=1000, line_width=15, legend='stationary')
+        power_spectrum_log(prm, channel_all_data, 30000, 'k', prm.get_filename(), title="$Power spectrum$", x_lim=150, line_width=15, legend='stationary')
         fig.savefig(prm.get_filepath() + 'Electrophysiology/fft/CH' + str(channel) + '.png', dpi=200)
         plt.close()
         #Ffrpower_spectrum_log(prm, moves_signal, 30000, 'b', filename, title="$Power spectrum$", x_lim=150, line_width=15, legend='movement')

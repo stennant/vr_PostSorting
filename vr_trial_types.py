@@ -173,7 +173,6 @@ def split_location_from_trial_types(prm, location, trial_type):
         nbeaconed = []
         probe = []
 
-        print(location.shape,trial_type.shape,'split_location_from_trial_types')
         for loc, loc_count in enumerate(trial_type):
             if loc == 2:
                 probe.append(location[loc])

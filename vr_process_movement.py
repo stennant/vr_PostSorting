@@ -27,6 +27,7 @@ def get_raw_location(prm):
     file_path = prm.get_filepath() + prm.get_movement_ch()
     location = vr_open_ephys_IO.get_data_continuous(prm, file_path)
     location = remove_beginning_and_end(prm, location)
+    print(location.shape)
     return location
 
 
@@ -53,6 +54,7 @@ distance unit calculated in the previous step to convert the rotary encoder valu
 
 def get_normalised_location_metric(prm, raw_data):
     print('Calculating normalized location...')
+
     recorded_location = raw_data  # Get the list of locations from the appropriate channel
     # Recorded beginning of the track. This may be nonzero because of sampling rate.
     recorded_startpoint = min(recorded_location)
@@ -337,7 +339,6 @@ def save_or_open_movement_arrays(prm):
 
     location, speed, velocity = cached_calculate_movement(prm)
     moves_indices, stationary_indices = cached_stationary_movement(prm, speed)
-    vr_trial_types.save_or_open_trial_arrays(prm)
     os.chdir('..')
     return
 
