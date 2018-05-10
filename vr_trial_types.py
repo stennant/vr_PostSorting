@@ -147,9 +147,9 @@ def calculate_trial_types_from_continuous(prm, first,second):
     if os.path.isfile(prm.get_behaviour_data_path() + "/con_trial_type.npy") is False:
         trial_type = np.zeros((first.shape[1]))
         for point,p in enumerate(first[0,:]):
-            if (p < 5 and p < 5):
+            if (p < 5 and second[0,point] < 5): # if beaconed
                 trial_type[point] = 0
-            elif (p > 5 and p < 5):
+            elif (p > 5 and second[0,point] < 5):
                 trial_type[point] = 1
             else:
                 trial_type[point] = 2
@@ -249,7 +249,7 @@ def beaconed_nbeaconed_probe(prm, location, trial_type):
 
 # If beaconed, non-beaconed and probe arrays don't exist, the functions to create them are called here
 def cached_trial_type(prm, location):
-    if os.path.isfile(prm.get_filepath() + "Behaviour/Data/beaconed.npy") is False or os.path.isfile(prm.get_filepath() + "Behaviour/Data/probe.npy") is False:
+    if os.path.isfile(prm.get_filepath() + "Behaviour/Data/con_trial_type.npy") is False or os.path.isfile(prm.get_filepath() + "Behaviour/Data/probe.npy") is False:
         first,second = load_trial_types_from_continuous(prm)
         trial_types = calculate_trial_types_from_continuous(prm, first,second)
         beaconed_trials, nbeaconed_trials, probe_trials = split_location_from_trial_types(prm,location, trial_types)

@@ -10,6 +10,7 @@ prm.get_filepath()
 class Parameters:
 
     is_vr = True
+    is_opto = True
     is_open_field = False
 
     filepath = ''
@@ -62,6 +63,12 @@ class Parameters:
 
     def set_is_vr(self, is_vr):
         Parameters.is_vr = is_vr
+
+    def get_is_opto(self):
+        return Parameters.is_opto
+
+    def set_is_opto(self, is_opto):
+        Parameters.is_opto = is_opto
 
     def get_is_open_field(self):
         return Parameters.is_open_field

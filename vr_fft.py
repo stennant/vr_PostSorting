@@ -9,40 +9,80 @@ import matplotlib.pyplot as plt
 import scipy.fftpack
 from scipy import signal
 import matplotlib.pylab as plt
-import numpy as np
 import os
-import vr_plot_continuous_data
+import numpy as np
+import pylab as pl
+from scipy.fftpack import fft, rfft, fftfreq
+import pylab as plt
 
 
 # plot power spectrum for channel
+# this function is copied from StackExchange
 def power_spectrum(channel, color, sampling_rate):
     # channel = data['data'][:,10][-50947920:]
     # #channel 11, 5th of the data is removed from the beginning because of noise
     ps = np.abs(np.fft.fft(channel))**2
-    time_step = 1 / int(sampling_rate)
+    time_step = 1 / 30000
     freqs = np.fft.fftfreq(channel.size, time_step)
     idx = np.argsort(freqs)
-    plt.plot(freqs[idx], ps[idx], color, linewidth=10)
-    plt.xlim(0, 200)
+    plt.plot(freqs[idx], ps[idx])
+    plt.xlabel('$Frequency (Hz)$')
+    plt.ylabel('$PSD (V^2/Hz)$')
+    plt.xlim(0, 150)
+    #plt.ylim(0, 1)
+
+
 
 
 # plot logarithmic power spectrum for channel
-def power_spectrum_log(prm, channel, sampling_rate, color, filename, title="$Power  spectrum$", x_lim=1000, line_width=15,
+def power_spectrum_log(prm, channel, sampling_rate, color, filename, title="$Power  spectrum$", x_lim=150, line_width=15,
                        legend='set legend'):
-    window = scipy.signal.get_window('hamming', len(channel))
+    window = scipy.signal.get_window('hamming', channel.size)
     f, pxx_den = signal.periodogram(channel, sampling_rate, window)
 
-    plt.semilogy(f, np.sqrt(pxx_den), color, line_width)
+    plt.plot(f, np.sqrt(pxx_den), color, line_width)
     plt.title(title)
-#    plt.legend(loc='upper right')
-#    plt.legend(frameon=False)
 
     plt.xlim([0, x_lim])
-    plt.ylim([5, 150])
+    plt.ylim([5, 300])
+    plt.xlabel('$Frequency (Hz)$', fontsize = 18)
+    plt.ylabel('$PSD (V^2/Hz)$', fontsize = 18)
+    #plt.savefig(filename + ".png")
+
+
+
+
+# plot logarithmic power spectrum for channel
+def power_spectrum_log2(prm, channel, sampling_rate, color, filename, title="$Power  spectrum$", x_lim=15, line_width=15,
+                       legend='set legend'):
+    window = scipy.signal.get_window('hamming', channel.size)
+    f, pxx_den = signal.periodogram(channel, sampling_rate, window)
+
+    plt.plot(f, np.sqrt(pxx_den), color, line_width)
+    plt.title(title)
+
+    plt.xlim([0, x_lim])
+    plt.ylim([5, 300])
+    plt.xlabel('$Frequency (Hz)$', fontsize = 18)
+    plt.ylabel('$PSD (V^2/Hz)$', fontsize = 18)
+    #plt.savefig(filename + ".png")
+
+
+
+# plot logarithmic power spectrum for channel
+def power_spectrum_log_inset(prm, channel, sampling_rate, color, filename, title="$Power  spectrum$", x_lim=15, line_width=15,
+                       legend='set legend'):
+    window = scipy.signal.get_window('hamming', channel.size)
+    f, pxx_den = signal.periodogram(channel, sampling_rate, window)
+
+    plt.plot(f, np.sqrt(pxx_den), color, line_width)
+    plt.title(title)
+
+    plt.xlim([0, 15])
+    #plt.ylim([5, 200])
     plt.xlabel('$Frequency (Hz)$')
     plt.ylabel('$PSD (V^2/Hz)$')
     plt.savefig(filename + ".png")
-
 
 
 
@@ -62,13 +102,6 @@ def plot_power_spectrum(prm, channel_all_data, channel):
     if os.path.isfile(analysis_path + 'ps_stationary_movement.png') is False:
         print('Plotting and saving power spectra')
 
-        #raw_data = np.asanyarray(fr.get_raw_data())
-
-        #stationary_signal = signal_for_indices.signal_for_indices_multi_ch(prm.get_good_channels(), raw_data.T,
-                                                                           #stationary)
-        #moves_signal = signal_for_indices.signal_for_indices_multi_ch(prm.get_good_channels(), raw_data.T, moves)
-
-        #filename = analysis_path + '/ps_stationary_movement'
         fig, ax = plt.subplots()
         ax.spines['right'].set_visible(False)
         ax.spines['top'].set_visible(False)
@@ -79,28 +112,156 @@ def plot_power_spectrum(prm, channel_all_data, channel):
         ax.xaxis.set_ticks_position('none')
         ax.yaxis.set_ticks_position('none')
 
-        #plt.xticks([0, 50, 100, 150])
-        #plt.yticks([10, 100, 1000])
-
-
-        power_spectrum_log(prm, channel_all_data, 30000, 'k', prm.get_filename(), title="$Power spectrum$", x_lim=150, line_width=15, legend='stationary')
+        #power_spectrum_log(prm, channel_all_data, 30000, 'k', prm.get_filename(), title="$Power spectrum$", x_lim=150, line_width=15, legend='stationary')
+        power_spectrum(channel_all_data, 'k', 30000)
         fig.savefig(prm.get_filepath() + 'Electrophysiology/fft/CH' + str(channel) + '.png', dpi=200)
         plt.close()
-        #Ffrpower_spectrum_log(prm, moves_signal, 30000, 'b', filename, title="$Power spectrum$", x_lim=150, line_width=15, legend='movement')
-        #plt.show()
-        #plt.close(fig)
+
     else:
         print('Power spectrum for movement and stationary data is already saved.')
 
 
 
 
-def calculate_and_plot_power_spectrum(prm):
 
-    for c, channel in enumerate(np.arange(1,16,1)):
 
-        #load continuous data
-        channel_all_data = vr_plot_continuous_data.load_continuous_data(prm, channel)
 
-        # calculate and plot power spectrum
-        plot_power_spectrum(prm, channel_all_data[0,:], channel)
+
+def plot_power_spectrum_moves_light(prm, light_movement, nolight_movement, light_stationary, nolight_stationary, channel):
+    ephys_path = prm.get_filepath() + 'Electrophysiology'
+    data_path = ephys_path + '/Data'
+    analysis_path = ephys_path + '/Analysis'
+    spike_path = ephys_path + '/Spike_sorting'
+
+    print(light_movement.shape, nolight_movement.shape)
+    if os.path.exists(ephys_path) is False:
+        print('Behavioural data will be saved in {}.'.format(ephys_path))
+        os.makedirs(ephys_path)
+        os.makedirs(data_path)
+        os.makedirs(analysis_path)
+        os.makedirs(spike_path)
+
+    if os.path.isfile(analysis_path + 'ps_stationary_movement.png') is False:
+        print('Plotting and saving power spectra')
+
+        fig, ax = plt.subplots()
+
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
+        ax.xaxis.set_ticks_position('bottom')
+        ax.yaxis.set_ticks_position('left')
+        ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+        ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+        power_spectrum_log(prm, light_movement, 30000, 'k', prm.get_filename(), title="$Power spectrum$", x_lim=150, line_width=15, legend='stationary')
+        fig.savefig(prm.get_filepath() + 'Electrophysiology/fft/CH' + str(channel) + '_light_movement.png', dpi=200)
+        power_spectrum_log2(prm, light_movement, 30000, 'k', prm.get_filename(), title="$Power spectrum$", x_lim=15, line_width=15, legend='stationary')
+        fig.savefig(prm.get_filepath() + 'Electrophysiology/fft/CH' + str(channel) + '_light_movement2.png', dpi=200)
+        plt.close()
+
+
+        fig, ax = plt.subplots()
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
+        ax.xaxis.set_ticks_position('bottom')
+        ax.yaxis.set_ticks_position('left')
+        ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+        ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+        power_spectrum_log(prm, light_stationary, 30000, 'k', prm.get_filename(), title="$Power spectrum$", x_lim=150, line_width=15, legend='stationary')
+        fig.savefig(prm.get_filepath() + 'Electrophysiology/fft/CH' + str(channel) + '_light_stationary.png', dpi=200)
+        power_spectrum_log2(prm, light_stationary, 30000, 'k', prm.get_filename(), title="$Power spectrum$", x_lim=15, line_width=15, legend='stationary')
+        fig.savefig(prm.get_filepath() + 'Electrophysiology/fft/CH' + str(channel) + '_light_stationary2.png', dpi=200)
+        plt.close()
+
+        fig, ax = plt.subplots()
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
+        ax.xaxis.set_ticks_position('bottom')
+        ax.yaxis.set_ticks_position('left')
+        ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+        ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+        power_spectrum_log(prm, nolight_movement, 30000, 'k', prm.get_filename(), title="$Power spectrum$", x_lim=150, line_width=15, legend='stationary')
+        fig.savefig(prm.get_filepath() + 'Electrophysiology/fft/CH' + str(channel) + '_ nolight_movement.png', dpi=200)
+        power_spectrum_log2(prm, nolight_movement, 30000, 'k', prm.get_filename(), title="$Power spectrum$", x_lim=15, line_width=15, legend='stationary')
+        fig.savefig(prm.get_filepath() + 'Electrophysiology/fft/CH' + str(channel) + '_ nolight_movement2.png', dpi=200)
+        plt.close()
+
+
+        fig, ax = plt.subplots()
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
+        ax.xaxis.set_ticks_position('bottom')
+        ax.yaxis.set_ticks_position('left')
+        ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+        ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+        power_spectrum_log(prm, nolight_stationary, 30000, 'k', prm.get_filename(), title="$Power spectrum$", x_lim=150, line_width=15, legend='stationary')
+        fig.savefig(prm.get_filepath() + 'Electrophysiology/fft/CH' + str(channel) + '_nolight_stationary.png', dpi=200)
+        power_spectrum_log2(prm, nolight_stationary, 30000, 'k', prm.get_filename(), title="$Power spectrum$", x_lim=15, line_width=15, legend='stationary')
+        fig.savefig(prm.get_filepath() + 'Electrophysiology/fft/CH' + str(channel) + '_nolight_stationary2.png', dpi=200)
+        plt.close()
+
+
+    else:
+        print('Power spectrum for movement and stationary data is already saved.')
+
+
+
+
+
+
+def calculate_and_plot_power_spectrum_split(prm, light_movement, nolight_movement, light_stationary, nolight_stationary, channel):
+
+    # calculate and plot power spectrum
+    #plot_power_spectrum(prm, channel_all_data[0,:], channel)
+    plot_power_spectrum_moves_light(prm, light_movement, nolight_movement, light_stationary, nolight_stationary,  channel)
+
+
+
+
+
+def plot_power_spectrum_moves(prm, moves, stationary, channel):
+
+    print('Plotting and saving power spectra')
+
+    fig, ax = plt.subplots()
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+
+    ax.xaxis.set_ticks_position('bottom')
+    ax.yaxis.set_ticks_position('left')
+
+    ax.xaxis.set_ticks_position('none')
+    ax.yaxis.set_ticks_position('none')
+
+    power_spectrum_log(prm, moves, 30000, 'k', prm.get_filename(), title="$Power spectrum$", x_lim=150, line_width=15, legend='stationary')
+    fig.savefig(prm.get_filepath() + 'Electrophysiology/fft/CH' + str(channel) + '_moves.png', dpi=200)
+    plt.close()
+
+
+    fig, ax = plt.subplots()
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+
+    ax.xaxis.set_ticks_position('bottom')
+    ax.yaxis.set_ticks_position('left')
+
+    ax.xaxis.set_ticks_position('none')
+    ax.yaxis.set_ticks_position('none')
+
+    power_spectrum_log(prm, stationary, 30000, 'k', prm.get_filename(), title="$Power spectrum$", x_lim=150, line_width=15, legend='stationary')
+    fig.savefig(prm.get_filepath() + 'Electrophysiology/fft/CH' + str(channel) + '_stationary.png', dpi=200)
+    plt.close()
+
+
+
+
+
+def calculate_and_plot_power_spectrum(prm, moves, stationary, channel):
+
+    # calculate and plot power spectrum
+    #plot_power_spectrum(prm, channel_all_data[0,:], channel)
+    plot_power_spectrum_moves(prm, moves, stationary,  channel)
+
+
+
+
+

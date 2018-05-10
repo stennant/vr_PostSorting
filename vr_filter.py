@@ -23,7 +23,7 @@ def theta_filter(channel, sampling_rate):
     order = 2  # this sets the order of the filter
     fs = sampling_rate  # this is the sampling rate
     low_cut = 4  # this is the low end of the theta band pass filter
-    high_cut = 10  # this is the high end of the theta band pass filter
+    high_cut = 12  # this is the high end of the theta band pass filter
     theta = butter_bandpass_filter(channel, low_cut, high_cut, fs, order)
     # plt.plot(theta + position, color)
     return theta

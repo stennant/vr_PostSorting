@@ -56,8 +56,16 @@ def create_ephys_folder_structure(prm):
     continuous_path = ephys_path + '/continuous'
     prm.set_continuous_path(continuous_path)
 
+    data_path = prm.get_filepath() + 'Data'
+
+    continuous_t1_path = continuous_path + '/t1'
+    continuous_t2_path = continuous_path + '/t2'
+    continuous_t3_path = continuous_path + '/t3'
+    continuous_t4_path = continuous_path + '/t4'
+
     continuous_raw_path = continuous_path + '/raw'
     continuous_ref_path = continuous_path + '/referenced'
+    continuous_filter_path = continuous_path + '/filtered'
 
     oscillations_path = ephys_path + '/theta_and_gamma'
 
@@ -68,6 +76,11 @@ def create_ephys_folder_structure(prm):
 
     fft_path = ephys_path + '/fft'
     prm.set_fft_path(fft_path)
+
+    fft_t1_path = fft_path + '/t1'
+    fft_t2_path = fft_path + '/t2'
+    fft_t3_path = fft_path + '/t3'
+    fft_t4_path = fft_path + '/t4'
 
     fft_opto_path = opto_path + '/fft'
 
@@ -94,8 +107,10 @@ def create_ephys_folder_structure(prm):
 
     if os.path.exists(ephys_path) is False:
         os.makedirs(ephys_path)
+        os.makedirs(data_path)
         #os.makedirs(spike_path)
         os.makedirs(continuous_path)
+        os.makedirs(continuous_filter_path)
         os.makedirs(opto_path)
         os.makedirs(fft_opto_path)
         os.makedirs(theta_opto_path)
@@ -106,14 +121,18 @@ def create_ephys_folder_structure(prm):
         os.makedirs(continuous_ref_path)
         os.makedirs(oscillations_path)
         os.makedirs(fft_path)
+        os.makedirs(fft_t1_path)
+        os.makedirs(fft_t2_path)
+        os.makedirs(fft_t3_path)
+        os.makedirs(fft_t4_path)
         os.makedirs(sorting_t1_path)
         os.makedirs(sorting_t2_path)
         os.makedirs(sorting_t3_path)
         os.makedirs(sorting_t4_path)
-        #os.makedirs(continuous_t1_path)
-        #os.makedirs(continuous_t2_path)
-        #os.makedirs(continuous_t3_path)
-        #os.makedirs(continuous_t4_path)
+        os.makedirs(continuous_t1_path)
+        os.makedirs(continuous_t2_path)
+        os.makedirs(continuous_t3_path)
+        os.makedirs(continuous_t4_path)
         os.makedirs(sorting_t1_path_continuous)
         os.makedirs(sorting_t2_path_continuous)
         os.makedirs(sorting_t3_path_continuous)

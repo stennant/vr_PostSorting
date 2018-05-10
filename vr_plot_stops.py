@@ -88,9 +88,9 @@ def make_plot(prm, stops_on_trials):
 
 def make_opto_plot(prm, stops_on_trials):
 
-    light = np.load(prm.get_filepath() + "Behaviour/Data/light.npy")
+    light = np.load(prm.get_filepath() + "Behaviour/Data/trials_light.npy")
     light = np.unique(light[:,1])
-    nolight = np.load(prm.get_filepath() + "Behaviour/Data/nolight.npy")
+    nolight = np.load(prm.get_filepath() + "Behaviour/Data/trials_nolight.npy")
     nolight = np.unique(nolight[:,1])
 
     avg_stop_b=[]

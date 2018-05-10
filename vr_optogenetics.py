@@ -10,6 +10,7 @@ import vr_process_movement
 import vr_plot_continuous_data
 import vr_fft
 import gc
+import vr_referencing
 
 
 def load_opto_continuous_data(prm, channel):
@@ -79,103 +80,50 @@ def split_light_and_no_light_trials(prm):
 
 
         print('trials split')
-        np.save(prm.get_filepath() + "Behaviour/Data/light", light)
-        np.save(prm.get_filepath() + "Behaviour/Data/nolight", no_light)
-        np.save(prm.get_filepath() + "Behaviour/Data/trials_light", light[:,1])
-        np.save(prm.get_filepath() + "Behaviour/Data/trials_nolight", no_light[:,1])
 
-    else:
-        light = np.load(prm.get_filepath() + "Behaviour/Data/light.npy")
-        no_light = np.load(prm.get_filepath() + "Behaviour/Data/nolight.npy")
-
+        np.save(prm.get_filepath() + "Behaviour/Data/trials_light", light)
+        np.save(prm.get_filepath() + "Behaviour/Data/trials_nolight", no_light)
     return light, no_light
 
 
 
-def split_light_and_no_light_channel(prm, channel_all_data, channel):
+def split_light_and_no_light_channel(prm, channel_all_data, channel, light,no_light,theta, gamma,channel_data_all_spikes):
 
-    if os.path.isfile(prm.get_filepath() + "Behaviour/Data/CH" + str(channel) + "_light.npy") is False:
 
-        trials = np.load(prm.get_filepath() + "Behaviour/Data/trial_numbers.npy")
-        light = np.load(prm.get_filepath() + "Behaviour/Data/light.npy")
-        no_light = np.load(prm.get_filepath() + "Behaviour/Data/nolight.npy")
-        light_trials = np.unique(light[:,1])
-        no_light_trials = np.unique(no_light[:,1])
+    trials = np.load(prm.get_filepath() + "Behaviour/Data/trial_numbers.npy")
+    light_trials = np.unique(light[:,1])
+    no_light_trials = np.unique(no_light[:,1])
 
-        channel_all_data = vr_process_movement.remove_beginning_and_end(prm,channel_all_data[:,0])
+    channel_all_data = np.transpose(channel_all_data[0,:])
+    channel_all_data = vr_process_movement.remove_beginning_and_end(prm,channel_all_data)
+    channel_data_all_spikes = np.transpose(channel_data_all_spikes[0,:])
+    channel_data_all_spikes = vr_process_movement.remove_beginning_and_end(prm,channel_data_all_spikes)
+    theta = np.transpose(theta[0,:])
+    theta = vr_process_movement.remove_beginning_and_end(prm,theta)
+    gamma = np.transpose(gamma[0,:])
+    gamma = vr_process_movement.remove_beginning_and_end(prm,gamma)
 
-        x = np.vstack((channel_all_data, trials))
-        x = np.transpose(x)
+    print(channel_all_data.shape,trials.shape,'2')
+    x = np.vstack((channel_all_data, trials, channel_data_all_spikes,theta,gamma))
+    x = np.transpose(x)
 
-        light = np.zeros((0,2))
-        no_light = np.zeros((0,2))
+    light = np.zeros((0,5))
+    no_light = np.zeros((0,5))
 
-        print('splitting stimulation and non-stimulation trials...')
+    print('splitting stimulation and non-stimulation trials...')
 
-        for t, trial in enumerate(light_trials):
-            trial_data = x[x[:,1] == trial,:]
-            light = np.vstack((light,trial_data))
-        np.save(prm.get_filepath() + "Behaviour/Data/CH" + str(channel) + "_light", light)
+    for t, trial in enumerate(light_trials):
+        trial_data = x[x[:,1] == trial,:]
+        light = np.vstack((light,trial_data))
 
-        for t, trial in enumerate(no_light_trials):
-            trial_data = x[x[:,1] == trial,:]
-            no_light = np.vstack((no_light,trial_data))
-        np.save(prm.get_filepath() + "Behaviour/Data/CH" + str(channel) + "_nolight", no_light)
+    for t, trial in enumerate(no_light_trials):
+        trial_data = x[x[:,1] == trial,:]
+        no_light = np.vstack((no_light,trial_data))
 
-    else:
-        light = np.load(prm.get_filepath() + "Behaviour/Data/CH" + str(channel) + "_light.npy")
-        no_light = np.load(prm.get_filepath() + "Behaviour/Data/CH" + str(channel) + "_nolight.npy")
 
     print('stimulation and non-stimulation trials are split')
 
     return light, no_light
-
-
-
-
-def plot_continuous_opto_data(prm, data, channel, param):
-
-    print('plotting continuous data...')
-
-    data = data[data[:,3] > 3,:] # remove all data in black box
-    trials = np.unique(data[:,1])
-
-    for tcount, trial in enumerate(trials[:10]):
-        array = data[data[:,1] == trial,:]
-        start_time = 0 # in ms
-        end_time = (np.array((25,50,100,500,1000,5000))) + start_time # in ms
-        try:
-            for t, times in enumerate(end_time):
-                end_time = times
-                #plot continuous data
-                fig = plt.figure(figsize = (14,8))
-                ax = fig.add_subplot(111)
-                ax.plot(np.arange(start_time,end_time,(1/30)),array[(start_time*30):(end_time*30),5])
-
-                ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8,labelsize =18)
-                ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
-                ax.locator_params(axis = 'x', nbins=7) # set number of ticks on x axis
-                ax.locator_params(axis = 'y', nbins=7) # set number of ticks on y axis
-                ax.set_xlabel('Time (ms)', fontsize=18, labelpad = 20)
-                ax.set_ylabel('Amplitude (uV)', fontsize=18, labelpad = 20)
-                array_min = np.min(array[(start_time*30):(end_time*30),5])
-                opto_ch = (array[(start_time*30):(end_time*30),0])+(array_min-5)
-                ax.set_ylim(array_min-10,)
-                ax.plot(np.arange(start_time,end_time,(1/30)),opto_ch, 'k')
-
-                vr_plot_utility.adjust_spines(ax, ['left','bottom'])
-                vr_plot_utility.adjust_spine_thickness(ax)
-                plt.subplots_adjust(hspace = .35, wspace = .35,  bottom = 0.15, left = 0.15, right = 0.92, top = 0.92)
-
-                if param == 1:
-                    fig.savefig(prm.get_filepath() + 'Electrophysiology/opto_stimulation/continuous/raw/CH' + str(channel) + '_' + str(trial) + '_' + str(end_time-start_time) + 'ms_light.png', dpi=200)
-                    plt.close()
-                if param == 2:
-                    fig.savefig(prm.get_filepath() + 'Electrophysiology/opto_stimulation/continuous/raw/CH' + str(channel) + '_' + str(trial) + '_' + str(end_time-start_time) + 'ms_nolight.png', dpi=200)
-                    plt.close()
-        except ValueError:
-                continue
-
 
 
 
@@ -188,6 +136,8 @@ def plot_continuous_filtered_opto_data(prm, data, channel, param):
 
     for tcount, trial in enumerate(trials[:10]):
         array = data[data[:,1] == trial,:]
+        trial_type = array[10,2]
+        print(trial_type)
         start_time = 0 # in ms
         end_time = (np.array((25,50,100,500,1000,5000))) + start_time # in ms
         try:
@@ -196,8 +146,8 @@ def plot_continuous_filtered_opto_data(prm, data, channel, param):
                 #plot continuous data
                 fig = plt.figure(figsize = (14,8))
                 ax = fig.add_subplot(111)
-                ax.plot(np.arange(start_time,end_time,(1/30)),array[(start_time*30):(end_time*30),5])
-                ax.plot(np.arange(start_time,end_time,(1/30)),array[(start_time*30):(end_time*30),0], 'k')
+                ax.plot(np.arange(0,end_time+start_time,(1/30)),array[(start_time*30):(end_time*30),5])
+                ax.plot(np.arange(0,end_time+start_time,(1/30)),array[(start_time*30):(end_time*30),0], 'k')
 
                 array_min = np.min(array[(start_time*30):(end_time*30),5])
                 opto_ch = (array[(start_time*30):(end_time*30),0])+(array_min-5)
@@ -216,11 +166,25 @@ def plot_continuous_filtered_opto_data(prm, data, channel, param):
                 plt.subplots_adjust(hspace = .35, wspace = .35,  bottom = 0.15, left = 0.15, right = 0.92, top = 0.92)
 
                 if param == 1:
-                    fig.savefig(prm.get_filepath() + 'Electrophysiology/opto_stimulation/continuous/filtered/CH' + str(channel) + '_' + str(trial) + '_' + str(end_time-start_time) + 'ms_light.png', dpi=200)
-                    plt.close()
+                    if trial_type == 0:
+                        fig.savefig(prm.get_filepath() + 'Electrophysiology/opto_stimulation/continuous/filtered/CH' + str(channel) + '_' + str(trial) + '_' + str(end_time-start_time) + 'ms_beaconed_light.png', dpi=200)
+                        plt.close()
+                    if trial_type == 1:
+                        fig.savefig(prm.get_filepath() + 'Electrophysiology/opto_stimulation/continuous/filtered/CH' + str(channel) + '_' + str(trial) + '_' + str(end_time-start_time) + 'ms_nonbeaconed_light.png', dpi=200)
+                        plt.close()
+                    if trial_type == 2:
+                        fig.savefig(prm.get_filepath() + 'Electrophysiology/opto_stimulation/continuous/filtered/CH' + str(channel) + '_' + str(trial) + '_' + str(end_time-start_time) + 'ms_probe_light.png', dpi=200)
+                        plt.close()
                 if param == 2:
-                    fig.savefig(prm.get_filepath() + 'Electrophysiology/opto_stimulation/continuous/filtered/CH' + str(channel) + '_' + str(trial) + '_' + str(end_time-start_time) + 'ms_nolight.png', dpi=200)
-                    plt.close()
+                    if trial_type == 0:
+                        fig.savefig(prm.get_filepath() + 'Electrophysiology/opto_stimulation/continuous/filtered/CH' + str(channel) + '_' + str(trial) + '_' + str(end_time-start_time) + 'ms_beaconed_nolight.png', dpi=200)
+                        plt.close()
+                    if trial_type == 1:
+                        fig.savefig(prm.get_filepath() + 'Electrophysiology/opto_stimulation/continuous/filtered/CH' + str(channel) + '_' + str(trial) + '_' + str(end_time-start_time) + 'ms_nonbeaconed_nolight.png', dpi=200)
+                        plt.close()
+                    if trial_type == 2:
+                        fig.savefig(prm.get_filepath() + 'Electrophysiology/opto_stimulation/continuous/filtered/CH' + str(channel) + '_' + str(trial) + '_' + str(end_time-start_time) + 'ms_probe_nolight.png', dpi=200)
+                        plt.close()
         except ValueError:
                 continue
 
@@ -251,35 +215,6 @@ def plot_opto_power_spectrum(prm, channel_all_data, channel, param):
         plt.close()
 
 
-def load_reference_channel(prm, channel):
-    #load .txt that tells us which channel is used as reference for the current channel
-    array = np.loadtxt(prm.get_filepath() + 'ref.txt')
-    channel_reference = int(array[channel])
-
-    #load continuous data from reference channel
-    referenced_data_all = []
-    reference = prm.get_filepath() + '100_CH' + str(channel_reference) + '.continuous' #todo this should bw in params, it is 100 for me, 105 for Tizzy (I don't have _0)
-    referenced_data = vr_open_ephys_IO.get_data_continuous(prm, reference)
-    referenced_data_all.append(referenced_data)
-    referenced_data_all = np.asarray(referenced_data_all)
-    referenced_data_all=np.transpose(referenced_data_all)
-
-    return referenced_data_all # just first 3 seconds
-
-
-def reference_channel(channel_data_all, referenced_data_all):
-    referenced = np.zeros((referenced_data_all.shape))
-    print(referenced.shape, channel_data_all.shape)
-    print('referencing channel...')
-    for p, point in enumerate(channel_data_all):
-        referenced_value = channel_data_all[p,0] - referenced_data_all[p]
-        referenced[p] = referenced_value
-    referenced = np.asarray(referenced)
-    referenced = np.hstack((referenced,channel_data_all))
-    print('channel referenced')
-
-    return referenced
-
 
 
 def plot_continuous_theta_opto_data(prm, theta, gamma,channel, param):
@@ -294,40 +229,162 @@ def plot_continuous_theta_opto_data(prm, theta, gamma,channel, param):
         gamma = gamma[gamma[:,1] == trial,:]
         start_time = 0 # in ms
         end_time = (np.array((25,50,100,500,1000,5000))) + start_time # in ms
+        for t, times in enumerate(end_time):
+            end_time = times
+            #plot continuous data
+            fig = plt.figure(figsize = (14,8))
+            ax = fig.add_subplot(111)
+            ax.plot(np.arange(start_time,end_time,(1/30)),theta[(start_time*30):(end_time*30),5])
+
+            ax.plot(np.arange(start_time,end_time,(1/30)),gamma[(start_time*30):(end_time*30),5], 'r')
+
+            array_min = np.min(theta[(start_time*30):(end_time*30),5])
+            opto_ch = (theta[(start_time*30):(end_time*30),0])+(array_min-5)
+            ax.set_ylim(array_min-10,)
+            ax.plot(np.arange(start_time,end_time,(1/30)),opto_ch, 'k')
+
+            ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8,labelsize =18)
+            ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+            ax.locator_params(axis = 'x', nbins=7) # set number of ticks on x axis
+            ax.locator_params(axis = 'y', nbins=7) # set number of ticks on y axis
+            ax.set_xlabel('Time (ms)', fontsize=18, labelpad = 20)
+            ax.set_ylabel('Amplitude (uV)', fontsize=18, labelpad = 20)
+
+            vr_plot_utility.adjust_spines(ax, ['left','bottom'])
+            vr_plot_utility.adjust_spine_thickness(ax)
+            plt.subplots_adjust(hspace = .35, wspace = .35,  bottom = 0.15, left = 0.15, right = 0.92, top = 0.92)
+
+            if param == 1:
+                fig.savefig(prm.get_filepath() + 'Electrophysiology/opto_stimulation/theta/CH' + str(channel) + '_' + str(trial) + '_' + str(end_time-start_time) + 'ms_light.png', dpi=200)
+                plt.close()
+            if param == 2:
+                fig.savefig(prm.get_filepath() + 'Electrophysiology/opto_stimulation/theta/CH' + str(channel) + '_' + str(trial) + '_' + str(end_time-start_time) + 'ms_nolight.png', dpi=200)
+                plt.close()
+
+
+
+
+
+def plot_continuous_opto_data(prm, data, channel, param):
+
+    print('plotting continuous data...')
+
+    data = data[data[:,3] > 3,:] # remove all data in black box
+    trials = np.unique(data[:,1])
+
+    for tcount, trial in enumerate(trials[:20]):
+        array = data[data[:,1] == trial,:]
+        trial_type = array[1,2]
+        print(trial_type)
+        start_time = 900 # in ms
         try:
+            end_time = (np.array((100,500,1000,5000))) + start_time # in ms
             for t, times in enumerate(end_time):
                 end_time = times
-                #plot continuous data
-                fig = plt.figure(figsize = (14,8))
-                ax = fig.add_subplot(111)
-                ax.plot(np.arange(start_time,end_time,(1/30)),theta[(start_time*30):(end_time*30),5])
 
-                ax.plot(np.arange(start_time,end_time,(1/30)),gamma[(start_time*30):(end_time*30),5], 'r')
 
-                array_min = np.min(theta[(start_time*30):(end_time*30),5])
-                opto_ch = (theta[(start_time*30):(end_time*30),0])+(array_min-5)
+                fig = plt.figure(figsize = (7.5,12))
+
+                ax = fig.add_subplot(511)
+
+                ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+                ax.locator_params(axis = 'y', nbins=3) # set number of ticks on y axis
+                ax.set_ylabel('Amplitude (uV)', fontsize=18, labelpad = 20)
+                array_min = np.min(array[(start_time*30):(end_time*30),5])
+                opto_ch = (array[(start_time*30):(end_time*30),0])+(array_min-5)
+                ax.set_ylim(array_min-10,array_min+10)
+                ax.plot(np.arange(0,end_time-start_time,(1/30)),opto_ch, 'k')
+
+                vr_plot_utility.adjust_spines(ax, ['left'])
+                vr_plot_utility.adjust_spine_thickness(ax)
+
+                ax = fig.add_subplot(512)
+
+                ax.plot(np.arange(0,end_time-start_time,(1/30)),array[(start_time*30):(end_time*30),5])
+
+                ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+                ax.locator_params(axis = 'y', nbins=3) # set number of ticks on y axis
+                ax.set_ylabel('Amplitude (uV)', fontsize=18, labelpad = 20)
+                array_min = np.min(array[(start_time*30):(end_time*30),5])
+                #opto_ch = (array[(start_time*30):(end_time*30),0])+(array_min-5)
                 ax.set_ylim(array_min-10,)
-                ax.plot(np.arange(start_time,end_time,(1/30)),opto_ch, 'k')
+
+                vr_plot_utility.adjust_spines(ax, ['left'])
+                vr_plot_utility.adjust_spine_thickness(ax)
+
+                ax = fig.add_subplot(513)
+                ax.plot(np.arange(0,end_time-start_time,(1/30)),array[(start_time*30):(end_time*30),7])
+
+                ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+                ax.locator_params(axis = 'y', nbins=3) # set number of ticks on y axis
+                ax.set_ylabel('Amplitude (uV)', fontsize=18, labelpad = 20)
+                array_min = np.min(array[(start_time*30):(end_time*30),6])
+                ax.set_ylim(-200,200)
+
+                vr_plot_utility.adjust_spines(ax, ['left'])
+                vr_plot_utility.adjust_spine_thickness(ax)
+
+                ax = fig.add_subplot(514)
+                ax.plot(np.arange(0,end_time-start_time,(1/30)),array[(start_time*30):(end_time*30),9])
+                ax.plot(np.arange(0,end_time-start_time,(1/30)),array[(start_time*30):(end_time*30),8])
+
+                ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+                ax.locator_params(axis = 'y', nbins=3) # set number of ticks on y axis
+                ax.set_ylabel('Amplitude (uV)', fontsize=18, labelpad = 20)
+                array_min = np.min(array[(start_time*30):(end_time*30),8])
+                opto_ch = (array[(start_time*30):(end_time*30),0])+(array_min-5)
+                ax.set_ylim(-270,270)
+
+                vr_plot_utility.adjust_spines(ax, ['left'])
+                vr_plot_utility.adjust_spine_thickness(ax)
+
+
+                ax = fig.add_subplot(515)
+                ax.plot(np.arange(0,end_time-start_time,(1/30)),array[(start_time*30):(end_time*30),3])
 
                 ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8,labelsize =18)
                 ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
                 ax.locator_params(axis = 'x', nbins=7) # set number of ticks on x axis
-                ax.locator_params(axis = 'y', nbins=7) # set number of ticks on y axis
+                ax.locator_params(axis = 'y', nbins=3) # set number of ticks on y axis
                 ax.set_xlabel('Time (ms)', fontsize=18, labelpad = 20)
-                ax.set_ylabel('Amplitude (uV)', fontsize=18, labelpad = 20)
+                ax.set_ylabel('Location (cm)', fontsize=18, labelpad = 20)
+                array_min = np.min(array[(start_time*30):(end_time*30),4])
+                array_max = np.min(array[(start_time*30):(end_time*30),4])
+                #ax.set_ylim(0,20)
 
                 vr_plot_utility.adjust_spines(ax, ['left','bottom'])
                 vr_plot_utility.adjust_spine_thickness(ax)
-                plt.subplots_adjust(hspace = .35, wspace = .35,  bottom = 0.15, left = 0.15, right = 0.92, top = 0.92)
 
+
+                plt.subplots_adjust(hspace = .35, wspace = .35,  bottom = 0.15, left = 0.2, right = 0.92, top = 0.92)
                 if param == 1:
-                    fig.savefig(prm.get_filepath() + 'Electrophysiology/opto_stimulation/theta/CH' + str(channel) + '_' + str(trial) + '_' + str(end_time-start_time) + 'ms_light.png', dpi=200)
-                    plt.close()
+                    if trial_type == 0:
+                        fig.savefig(prm.get_filepath() + 'Electrophysiology/opto_stimulation/continuous/filtered/CH' + str(channel) + '_' + str(trial) + '_' + str(end_time-start_time) + 'ms_light.png', dpi=200)
+                        plt.close()
+                    if trial_type == 1:
+                        fig.savefig(prm.get_filepath() + 'Electrophysiology/opto_stimulation/continuous/filtered/CH' + str(channel) + '_' + str(trial) + '_' + str(end_time-start_time) + 'ms_light.png', dpi=200)
+                        plt.close()
+                    if trial_type == 2:
+                        fig.savefig(prm.get_filepath() + 'Electrophysiology/opto_stimulation/continuous/filtered/CH' + str(channel) + '_' + str(trial) + '_' + str(end_time-start_time) + 'ms_light.png', dpi=200)
+                        plt.close()
                 if param == 2:
-                    fig.savefig(prm.get_filepath() + 'Electrophysiology/opto_stimulation/theta/CH' + str(channel) + '_' + str(trial) + '_' + str(end_time-start_time) + 'ms_nolight.png', dpi=200)
-                    plt.close()
+                    if trial_type == 0:
+                        fig.savefig(prm.get_filepath() + 'Electrophysiology/opto_stimulation/continuous/filtered/CH' + str(channel) + '_' + str(trial) + '_' + str(end_time-start_time) + 'ms_nolight.png', dpi=200)
+                        plt.close()
+                    if trial_type == 1:
+                        fig.savefig(prm.get_filepath() + 'Electrophysiology/opto_stimulation/continuous/filtered/CH' + str(channel) + '_' + str(trial) + '_' + str(end_time-start_time) + 'ms_nonbeaconed_nolight.png', dpi=200)
+                        plt.close()
+                    if trial_type == 2:
+                        fig.savefig(prm.get_filepath() + 'Electrophysiology/opto_stimulation/continuous/filtered/CH' + str(channel) + '_' + str(trial) + '_' + str(end_time-start_time) + 'ms_probe_nolight.png', dpi=200)
+                        plt.close()
         except ValueError:
-                continue
+            continue
+
+
+
+
+
+
 
 
 def load_and_process_opto_channel(prm):
@@ -344,9 +401,9 @@ def load_and_process_opto_channel(prm):
         #load continuous data
         channel_all_data = vr_plot_continuous_data.load_continuous_data(prm, channel)
         #load reference channel
-        referenced_data_all = load_reference_channel(prm, channel)
+        referenced_data_all = vr_referencing.load_reference_channel(prm, channel)
         #reference the channel
-        channel_all_data = reference_channel(np.transpose(channel_all_data), referenced_data_all)
+        channel_all_data = vr_referencing.reference_channel(np.transpose(channel_all_data), referenced_data_all)
 
         # split ephys according to light and no light stimulation
         light_ch,no_light_ch = split_light_and_no_light_channel(prm, channel_all_data, channel)
@@ -388,8 +445,4 @@ def load_and_process_opto_channel(prm):
         #plot_continuous_filtered_opto_data(prm, np.hstack((light,light_ch)), 6, 1)
         #plot_continuous_filtered_opto_data(prm, np.hstack((no_light,no_light_ch)), 6, 2)
         #filter for theta
-
-
-
-
 

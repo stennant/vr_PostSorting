@@ -6,7 +6,7 @@ import matplotlib.pylab as plt
 import numpy as np
 import vr_filter
 import vr_plot_utility
-
+import vr_optogenetics
 
 def load_continuous_data(prm, channel):
     vr_file_utility.create_folder_structure(prm)
@@ -23,7 +23,7 @@ def load_continuous_data(prm, channel):
 
 def plot_continuous_data(prm, channel_data_all, channel):
     start_time = 0 # in ms
-    end_time = (np.array((25,50,100,500,1000,5000)))+ start_time # in ms
+    end_time = (np.array((100,500,1000,5000)))+ start_time # in ms
     for t, times in enumerate(end_time):
         end_time = times
         #plot continuous data
@@ -71,6 +71,7 @@ def plot_continuous_filtered_data(prm, channel_data_all, channel):
         plt.close()
 
 
+
 def load_reference_channel(prm, channel):
     #load .txt that tells us which channel is used as reference for the current channel
     array = np.loadtxt(prm.get_filepath() + 'ref.txt')
@@ -94,6 +95,7 @@ def reference_channel(channel_data_all, referenced_data_all):
         referenced = np.append(referenced,referenced_value)
     referenced = np.asarray(referenced)
     return referenced
+
 
 
 def plot_referenced_data(prm, channel_data_all, channel):
@@ -182,3 +184,25 @@ def load_and_plot_continuous_referenced(prm):
         #plot filtered referenced data
         plot_referenced_filtered_data(prm, filtered_data_all, channel)
         #print('continuous referenced data analysed and plotted')
+
+
+
+
+
+def plot_continuous_opto(prm, channel_data_all,channel, light,nolight,theta, gamma,channel_data_all_spikes):
+
+    light_ch,no_light_ch = vr_optogenetics.split_light_and_no_light_channel(prm, channel_data_all, channel, light,nolight,theta, gamma,channel_data_all_spikes)
+
+    light = np.hstack((light,light_ch))
+    #light = np.take((light, np.where(light[:,4] > 0.7)))
+    nolight = np.hstack((nolight,no_light_ch))
+    #nolight = np.take((nolight, np.where(nolight[:,4] > 0.7)))
+
+    #plot
+
+    vr_optogenetics.plot_continuous_opto_data(prm, light, channel, 1,)
+    vr_optogenetics.plot_continuous_opto_data(prm, nolight, channel, 2)
+    #plot filtered data
+    #plot_continuous_filtered_data(prm, channel_data_all, channel)
+    #print('continuous raw data analysed and plotted')
+
