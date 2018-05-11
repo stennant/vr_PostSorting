@@ -19,6 +19,7 @@ import vr_referencing
 import numpy as np
 import vr_split_data
 import vr_spectrogram
+import vr_track_location_analysis
 
 prm = vr_parameters.Parameters()
 
@@ -54,7 +55,7 @@ Initializes parameters
 
 def init_params():
 
-    filename = '712_D21_2018-03-19_14-23-26'
+    filename = '712_D20_2018-03-16_14-34-10'
     #712_D23_2018-03-21_14-07-56
 
 
@@ -71,7 +72,7 @@ def init_params():
 
     prm.set_is_open_field(False)
     prm.set_is_vr(True)
-    prm.set_is_opto(True)
+    prm.set_is_opto(False)
 
     if prm.is_vr is True:
         init_vr_params()
@@ -110,7 +111,7 @@ def process_a_dir(dir_name):
         light, no_light = vr_optogenetics.split_light_and_no_light_trials(prm) # need for plot stops and plotting continuous
 
         for c, channel in enumerate(np.arange(1,16,1)):
-            if channel ==5 or channel == 13:
+            if channel ==0 or channel == 13:
 
                 #load continuous data
                 channel_data = vr_plot_continuous_data.load_continuous_data(prm, channel)
@@ -125,23 +126,28 @@ def process_a_dir(dir_name):
                 theta = vr_filter.theta_filter(channel_data, 30000)
                 gamma = vr_filter.gamma_filter(channel_data, 30000)
 
-                # Plot some example stuff
-                vr_plot_continuous_data.plot_continuous_opto(prm, channel_data_all,channel,light,no_light, theta, gamma,channel_data_all_spikes)
-                print('continuous has been loaded and plotted')
+                if prm.get_is_opto == True:
+                    # Plot some example stuff for optogenetics
+                    vr_plot_continuous_data.plot_continuous_opto(prm, channel_data_all,channel,light,no_light, theta, gamma,channel_data_all_spikes)
+                    print('continuous has been loaded and plotted')
 
-                # split channel data by light/no light and movement / stationary
-                #light_movement, nolight_movement, light_stationary, nolight_stationary = vr_split_data.split_light_nolight_movement_stationary(prm, channel_data_all)
-                print('channel data split')
+                    # split channel data by light/no light and movement / stationary
+                    #light_movement, nolight_movement, light_stationary, nolight_stationary = vr_split_data.split_light_nolight_movement_stationary(prm, channel_data_all)
+                    print('channel data split')
 
-                #plot power spectrums
-                #vr_fft.calculate_and_plot_power_spectrum_split(prm, light_movement, nolight_movement, light_stationary, nolight_stationary, channel)
-                print('power spectrum has been loaded and plotted')
-
+                    #plot power spectrums for light and no light, movement and stationary
+                    #vr_fft.calculate_and_plot_power_spectrum_split(prm, light_movement, nolight_movement, light_stationary, nolight_stationary, channel)
+                    print('power spectrum has been loaded and plotted')
+                if prm.get_is_opto == False:
+                    #look at theta and gamma at diff track locations
+                    outbound,rewardzone,homebound= vr_track_location_analysis.split_locations(prm,no_light,channel_data_all,channel_data_all_spikes,theta,gamma)
+                    #plot example data
+                    vr_track_location_analysis.plot_track_locations_examples(prm,0, channel,data=outbound)
+                    vr_track_location_analysis.plot_track_locations_examples(prm,1, channel,data=rewardzone)
+                    vr_track_location_analysis.plot_track_locations_examples(prm,2, channel,data=homebound)
 
         # load and plot stops with opto highlighted
         #vr_plot_stops.plot_opto_stops(prm)
-
-        #vr_optogenetics_behaviour.load_and_plot_speed(prm)
 
 
 
