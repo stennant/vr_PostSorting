@@ -92,9 +92,7 @@ def process_a_dir(dir_name):
 
         #following functions process movement information and plot stops per trial
         vr_process_movement.save_or_open_movement_arrays(prm)
-        #print('movement has been analysed')
         vr_trial_types.save_or_open_trial_arrays(prm)
-        #print('trial type information has been analysed')
         #vr_plot_stops.plot_stops(prm)
         #print('Stops have been plotted')
 
@@ -102,10 +100,9 @@ def process_a_dir(dir_name):
         #vr_sorted_firing_times.process_firing_times(prm)
         #print('Firing times have been plotted')
 
-        # Split the data according to movement and stationary - saves moved indicies
+        # Split the data according to movement and stationary - saves moved/stationary indicies from data, this helps us split channel data later
         vr_split_data.split_movement_and_stationary(prm)
-
-        # load and process optogenetics -
+        # load and process optogenetics - save indicies in data of light and no light, this helps us split channel data later
         vr_split_data.split_light_and_nolight(prm)
 
         light, no_light = vr_optogenetics.split_light_and_no_light_trials(prm) # need for plot stops and plotting continuous
@@ -115,9 +112,9 @@ def process_a_dir(dir_name):
 
                 #load continuous data
                 channel_data = vr_plot_continuous_data.load_continuous_data(prm, channel)
-                #load reference channel
+
+                #reference channel # warning: referencing may interfere with theta and gamma data
                 #referenced_data_all = vr_referencing.load_reference_channel(prm, channel)
-                #reference the channel
                 #referenced_data_all = vr_referencing.reference_channel(channel_data, referenced_data_all)
 
                 #filter data
@@ -126,7 +123,7 @@ def process_a_dir(dir_name):
                 theta = vr_filter.theta_filter(channel_data, 30000)
                 gamma = vr_filter.gamma_filter(channel_data, 30000)
 
-                if prm.get_is_opto == True:
+                if prm.is_opto is True:
                     # Plot some example stuff for optogenetics
                     vr_plot_continuous_data.plot_continuous_opto(prm, channel_data_all,channel,light,no_light, theta, gamma,channel_data_all_spikes)
                     print('continuous has been loaded and plotted')
@@ -138,7 +135,7 @@ def process_a_dir(dir_name):
                     #plot power spectrums for light and no light, movement and stationary
                     #vr_fft.calculate_and_plot_power_spectrum_split(prm, light_movement, nolight_movement, light_stationary, nolight_stationary, channel)
                     print('power spectrum has been loaded and plotted')
-                if prm.get_is_opto == False:
+                if prm.is_opto is False:
                     #look at theta and gamma at diff track locations
                     outbound,rewardzone,homebound= vr_track_location_analysis.split_locations(prm,no_light,channel_data_all,channel_data_all_spikes,theta,gamma)
                     #plot example data
