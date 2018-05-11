@@ -56,6 +56,9 @@ def create_ephys_folder_structure(prm):
     continuous_path = ephys_path + '/continuous'
     prm.set_continuous_path(continuous_path)
 
+    track_location_analysis_path = ephys_path + '/track_location_analysis'
+    continuous_track_location_analysis_path = track_location_analysis_path + '/continuous'
+
     data_path = prm.get_filepath() + 'Data'
 
     continuous_t1_path = continuous_path + '/t1'
@@ -110,6 +113,8 @@ def create_ephys_folder_structure(prm):
         os.makedirs(data_path)
         #os.makedirs(spike_path)
         os.makedirs(continuous_path)
+        os.makedirs(track_location_analysis_path)
+        os.makedirs(continuous_track_location_analysis_path)
         os.makedirs(continuous_filter_path)
         os.makedirs(opto_path)
         os.makedirs(fft_opto_path)
