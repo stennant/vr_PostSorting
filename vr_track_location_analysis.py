@@ -11,13 +11,13 @@ import vr_process_movement
 
 
 
-def split_locations(prm,no_light,channel_all_data,channel_data_all_spikes,theta,gamma):
+def split_locations(prm,no_light,channel_data_all,channel_data_all_spikes,theta,gamma):
     #load data
     trials = np.load(prm.get_filepath() + "Behaviour/Data/trial_numbers.npy")
     location = np.load(prm.get_filepath() + "Behaviour/Data/location.npy")
 
     #get all your data arrays in the same shape and order so you can stack them together
-    channel_all_data = np.transpose(channel_all_data[0,:])
+    channel_all_data = np.transpose(channel_data_all[0,:])
     channel_all_data = vr_process_movement.remove_beginning_and_end(prm,channel_all_data) # remove start of data
     channel_data_all_spikes = np.transpose(channel_data_all_spikes[0,:])
     channel_data_all_spikes = vr_process_movement.remove_beginning_and_end(prm,channel_data_all_spikes)# remove start of data
@@ -44,13 +44,12 @@ def plot_track_locations_examples(prm, location, channel, data='data'):
     print('plotting continuous data...')
 
     data = data[data[:,1] > 3,:] # remove all data in black box
-    trials = np.unique(data[:,1])
+    trials = np.unique(data[:,0])
 
     for tcount, trial in enumerate(trials[:20]):
-        array = data[data[:,1] == trial,:]
+        array = data[data[:,0] == trial,:]
         start_time = 0 # in ms
         totaltime = int((array.shape[0])/30)
-        print(totaltime)
         try:
             end_time = np.array((100,500,1000,totaltime)) + start_time # in ms
             for t, times in enumerate(end_time):
@@ -58,21 +57,21 @@ def plot_track_locations_examples(prm, location, channel, data='data'):
 
                 if location ==0:
 
-                    fig = plt.figure(figsize = (10,12))
+                    fig = plt.figure(figsize = (12,10))
                     plot_graph(array, start_time,end_time, t, times, fig)
                     fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/continuous/CH' + str(channel) + '_' + str(trial) + '_' + str(end_time-start_time) + 'ms_outbound.png', dpi=200)
                     plt.close()
 
                 if location ==1:
 
-                    fig = plt.figure(figsize = (6,12))
+                    fig = plt.figure(figsize = (8,10))
                     plot_graph(array, start_time,end_time, t, times, fig)
                     fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/continuous/CH' + str(channel) + '_' + str(trial) + '_' + str(end_time-start_time) + 'ms_rewardzone.png', dpi=200)
                     plt.close()
 
                 if location ==2:
 
-                    fig = plt.figure(figsize = (10,12))
+                    fig = plt.figure(figsize = (12,10))
                     plot_graph(array, start_time,end_time, t, times, fig)
                     fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/continuous/CH' + str(channel) + '_' + str(trial) + '_' + str(end_time-start_time) + 'ms_homebound.png', dpi=200)
                     plt.close()
