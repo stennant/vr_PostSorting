@@ -93,7 +93,7 @@ def process_a_dir(dir_name):
         #following functions process movement information and plot stops per trial
         vr_process_movement.save_or_open_movement_arrays(prm)
         vr_trial_types.save_or_open_trial_arrays(prm)
-        #vr_plot_stops.plot_stops(prm)
+        vr_plot_stops.plot_stops(prm)
         #print('Stops have been plotted')
 
         # plot firing times of clusters against location
@@ -139,10 +139,11 @@ def process_a_dir(dir_name):
                     #look at theta and gamma at diff track locations
                     outbound,rewardzone,homebound= vr_track_location_analysis.split_locations(prm,no_light,channel_data_all,channel_data_all_spikes,theta,gamma)
                     #plot example data
-                    vr_track_location_analysis.plot_track_locations_examples(prm,0, channel,data=outbound)
-                    vr_track_location_analysis.plot_track_locations_examples(prm,1, channel,data=rewardzone)
-                    vr_track_location_analysis.plot_track_locations_examples(prm,2, channel,data=homebound)
+                    #vr_track_location_analysis.plot_track_locations_examples(prm,0, channel,data=outbound)
+                    #vr_track_location_analysis.plot_track_locations_examples(prm,1, channel,data=rewardzone)
+                    #vr_track_location_analysis.plot_track_locations_examples(prm,2, channel,data=homebound)
 
+                    vr_track_location_analysis.calculate_and_plot_power_spectrum_track_locations(prm, outbound[:,2], rewardzone[:,2], homebound[:,2], channel)
         # load and plot stops with opto highlighted
         #vr_plot_stops.plot_opto_stops(prm)
 
