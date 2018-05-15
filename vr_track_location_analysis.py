@@ -35,7 +35,6 @@ def split_locations(prm,no_light,channel_data_all,channel_data_all_spikes,theta,
     rewardzone = data[np.where(np.logical_and(data[:,1] > 90, data[:,1] < 110))]
     homebound = data[np.where(np.logical_and(data[:,1] > 110, data[:,1] < 170))]
 
-    print(data.shape, outbound.shape, rewardzone.shape,homebound.shape)
     return outbound,rewardzone, homebound
 
 
@@ -49,7 +48,6 @@ def plot_track_locations_examples(prm, location, channel, data='data'):
 
     for tcount, trial in enumerate(trials):
         array = data[data[:,0] == trial,:]
-        print(array.shape)
         start_time = 0 # in ms
         totaltime = int((array.shape[0])/30)
         try:
