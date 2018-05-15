@@ -8,7 +8,7 @@ import vr_filter
 import vr_plot_utility
 import vr_optogenetics
 import vr_process_movement
-
+import vr_fft
 
 
 def split_locations(prm,no_light,channel_data_all,channel_data_all_spikes,theta,gamma):
@@ -31,10 +31,11 @@ def split_locations(prm,no_light,channel_data_all,channel_data_all_spikes,theta,
     data = np.transpose(x)
 
     #split data based on location along the track
-    outbound = data[np.where(np.logical_and(abs(data[:,1]) > 3, abs(data[:,1]) < 9))]
-    rewardzone = data[np.where(np.logical_and(abs(data[:,1]) > 9, abs(data[:,1]) < 11))]
-    homebound = data[np.where(np.logical_and(abs(data[:,1]) > 11, abs(data[:,1]) < 17))]
+    outbound = data[np.where(np.logical_and(data[:,1] > 30, data[:,1] < 90))]
+    rewardzone = data[np.where(np.logical_and(data[:,1] > 90, data[:,1] < 110))]
+    homebound = data[np.where(np.logical_and(data[:,1] > 110, data[:,1] < 170))]
 
+    print(data.shape, outbound.shape, rewardzone.shape,homebound.shape)
     return outbound,rewardzone, homebound
 
 
@@ -43,16 +44,18 @@ def plot_track_locations_examples(prm, location, channel, data='data'):
 
     print('plotting continuous data...')
 
-    data = data[data[:,1] > 3,:] # remove all data in black box
+    #data = data[data[:,1] > 3,:] # remove all data in black box
     trials = np.unique(data[:,0])
 
-    for tcount, trial in enumerate(trials[:20]):
+    for tcount, trial in enumerate(trials):
         array = data[data[:,0] == trial,:]
+        print(array.shape)
         start_time = 0 # in ms
         totaltime = int((array.shape[0])/30)
         try:
-            end_time = np.array((100,500,1000,totaltime)) + start_time # in ms
-            for t, times in enumerate(end_time):
+            end_times = (np.array((100,500,1000,totaltime))) + start_time # in ms
+            print(end_times, 'endtime')
+            for t, times in enumerate(end_times):
                 end_time = times
 
                 if location ==0:
@@ -138,3 +141,86 @@ def plot_graph(array, start_time,end_time, t, times, fig):
 
 
     plt.subplots_adjust(hspace = .35, wspace = .35,  bottom = 0.15, left = 0.2, right = 0.92, top = 0.92)
+
+
+
+
+
+
+
+
+
+
+
+
+def plot_power_spectrum_track_locations(prm, outbound, rewardzone, homebound, channel):
+    ephys_path = prm.get_filepath() + 'Electrophysiology'
+    data_path = ephys_path + '/Data'
+    analysis_path = ephys_path + '/Analysis'
+    spike_path = ephys_path + '/Spike_sorting'
+
+    if os.path.exists(ephys_path) is False:
+        print('Behavioural data will be saved in {}.'.format(ephys_path))
+        os.makedirs(ephys_path)
+        os.makedirs(data_path)
+        os.makedirs(analysis_path)
+        os.makedirs(spike_path)
+
+    if os.path.isfile(analysis_path + 'ps_stationary_movement.png') is False:
+        print('Plotting and saving power spectra')
+
+        fig, ax = plt.subplots()
+
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
+        ax.xaxis.set_ticks_position('bottom')
+        ax.yaxis.set_ticks_position('left')
+        ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+        ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+        vr_fft.power_spectrum_log(prm, outbound, 30000, 'k', prm.get_filename(), title="$Power spectrum$", x_lim=150, line_width=15, legend='stationary')
+        fig.savefig(prm.get_filepath() + 'Electrophysiology/fft/CH' + str(channel) + '_outbound.png', dpi=200)
+        vr_fft.power_spectrum_log2(prm, outbound, 30000, 'k', prm.get_filename(), title="$Power spectrum$", x_lim=15, line_width=15, legend='stationary')
+        fig.savefig(prm.get_filepath() + 'Electrophysiology/fft/CH' + str(channel) + '_outbound2.png', dpi=200)
+        plt.close()
+
+
+        fig, ax = plt.subplots()
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
+        ax.xaxis.set_ticks_position('bottom')
+        ax.yaxis.set_ticks_position('left')
+        ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+        ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+        vr_fft.power_spectrum_log(prm, rewardzone, 30000, 'k', prm.get_filename(), title="$Power spectrum$", x_lim=150, line_width=15, legend='stationary')
+        fig.savefig(prm.get_filepath() + 'Electrophysiology/fft/CH' + str(channel) + '_rewardzone.png', dpi=200)
+        vr_fft.power_spectrum_log2(prm, rewardzone, 30000, 'k', prm.get_filename(), title="$Power spectrum$", x_lim=15, line_width=15, legend='stationary')
+        fig.savefig(prm.get_filepath() + 'Electrophysiology/fft/CH' + str(channel) + '_rewardzone2.png', dpi=200)
+        plt.close()
+
+        fig, ax = plt.subplots()
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
+        ax.xaxis.set_ticks_position('bottom')
+        ax.yaxis.set_ticks_position('left')
+        ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+        ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+        vr_fft.power_spectrum_log(prm, homebound, 30000, 'k', prm.get_filename(), title="$Power spectrum$", x_lim=150, line_width=15, legend='stationary')
+        fig.savefig(prm.get_filepath() + 'Electrophysiology/fft/CH' + str(channel) + '_homebound.png', dpi=200)
+        vr_fft.power_spectrum_log2(prm, homebound, 30000, 'k', prm.get_filename(), title="$Power spectrum$", x_lim=15, line_width=15, legend='stationary')
+        fig.savefig(prm.get_filepath() + 'Electrophysiology/fft/CH' + str(channel) + '_homebound2.png', dpi=200)
+        plt.close()
+
+    else:
+        print('Power spectrum for movement and stationary data is already saved.')
+
+
+
+
+
+
+def calculate_and_plot_power_spectrum_track_locations(prm, outbound, rewardzone, homebound, channel):
+
+    # calculate and plot power spectrum
+    #plot_power_spectrum(prm, channel_all_data[0,:], channel)
+    plot_power_spectrum_track_locations(prm, outbound, rewardzone, homebound,  channel)
+
