@@ -1,8 +1,11 @@
-import mdaio
 import numpy as np
 import vr_trial_types
 import vr_plot_spikes
+import tables
 
+"""""
+
+# Old code which opened the firings.mda file
 
 def get_firing_info(prm):
     firing_times_path = prm.get_firings_path()
@@ -31,14 +34,36 @@ def get_channel_ids_for_unit(prm, unit_id):
     ch_ids_for_unit = np.take(firing_info[0], firing_ch_ids_indices)
 
     return ch_ids_for_unit
-
-
+    
 def process_firing_times(prm):
 
     units_list, firing_info = get_firing_info(prm)
     for unit_id, unit in enumerate(units_list):
         firing_times_unit = get_firing_times_of_unit(prm, unit)
         ch_ids_unit = get_channel_ids_for_unit(prm, unit)
+        # call histogram/ plotting functions for each cell here
+        vr_plot_spikes.plot_spikes(prm, firing_times_unit, unit)
+
+"""""
+
+def get_snippets(prm):
+    path = prm.get_filepath() + 'Firings0.mat'
+    firings = tables.open_file(path)
+    cluster_id = firings.root.cluid[:]
+    cluster_id = cluster_id.flatten()
+    spike_index = firings.root.spikeind[:]
+    spike_index = spike_index.flatten()
+    waveforms = firings.root.waveforms[:]
+    #print(spike_index[0:100],'spike_index',spike_index.shape, cluster_id[0:100], 'cluster_id' ,cluster_id.shape)
+    return cluster_id, spike_index, waveforms
+
+
+def process_firing_times(prm):
+
+    cluster_id, spike_index, waveforms = get_snippets(prm)
+    units_list = np.unique(cluster_id)
+    for unit_id, unit in enumerate(units_list):
+        firing_times_unit = np.take(spike_index, np.where(cluster_id == unit))
         # call histogram/ plotting functions for each cell here
         vr_plot_spikes.plot_spikes(prm, firing_times_unit, unit)
 
