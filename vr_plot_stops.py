@@ -3,7 +3,6 @@ import matplotlib.pylab as plt
 import numpy as np
 import os
 import vr_parameters
-import plot_utility
 import vr_stops
 import vr_plot_utility
 
