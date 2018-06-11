@@ -197,15 +197,16 @@ def get_pooled_data(number_of_days):
 def get_data_for_spikes_on_trials(prm, firing_times_unit):
     behaviour_path = prm.get_behaviour_data_path()
     number_of_trials = np.load(prm.get_behaviour_data_path() + '/trial_num.npy')
+    trials = np.load(prm.get_behaviour_data_path() + '/trial_numbers.npy')
     location = np.load(behaviour_path + '/location.npy')
     #all_stops = firing_times_unit.aslist(list)
     all_stops = list(chain.from_iterable(firing_times_unit))
     #print(all_stops, 'spike_times')
     track_beginnings = vr_trial_types.get_beginning_of_track_positions(prm, location)
-    return location, number_of_trials, all_stops, track_beginnings
+    return location, number_of_trials, trials, all_stops, track_beginnings
 
 
-def get_spikes_on_trials_find_stops(location, number_of_trials, all_stops, track_beginnings):
+def get_spikes_on_trials_find_stops(location, number_of_trials, trials, all_stops, track_beginnings):
     stops_on_trials = []
     location = np.asanyarray(location)
     number_of_trials = np.asanyarray(number_of_trials)
