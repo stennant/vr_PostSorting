@@ -61,18 +61,14 @@ def get_snippets(prm):
 
 
 def get_time_in_bin(prm, location, number_of_trials):
-    bin_locations = np.zeros((20,len(np.unique(number_of_trials))))
-    data = np.vstack((location,number_of_trials))
-    #print(data.shape, 'data')
-    #print(bin_locations.shape, 'bin_locations')
+    bin_locations = np.zeros((200,len(np.unique(number_of_trials))))
+    data = np.vstack((location,number_of_trials)); data=np.transpose(data)
     for tcount,trial in enumerate(np.unique(number_of_trials)):
-        location = data[np.where(data[:, 1] == trial),0]
-        #print(location.shape,'location')
-        for loc_count,loc in enumerate(np.arange(1,200,10)):
-            time_sum = location[np.where(np.logical_and(location < (loc+5),  location > (loc-5)))]
+        location = data[data[:, 1] == trial,:]
+        for loc_count,loc in enumerate(np.arange(1,200,1)):
+            time_sum = location[np.where(np.logical_and(location <= (loc+1),  location > (loc)))]
             sum = (len(time_sum))/30 # time in ms spent in that region
             bin_locations[loc_count, tcount]= sum
-            print(bin_locations, 'bin_locations')
     return bin_locations
 
 
@@ -82,6 +78,7 @@ def process_firing_times(prm):
     location = np.load(prm.get_behaviour_data_path() + '/location.npy')
     cluster_id, spike_index, waveforms = get_snippets(prm)
     units_list = np.unique(cluster_id)
+
     for unit_id, unit in enumerate(units_list):
         firing_times_unit = np.take(spike_index, np.where(cluster_id == unit))
         times = get_time_in_bin(prm, location, trials)
