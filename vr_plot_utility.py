@@ -46,7 +46,7 @@ def adjust_spine_thickness(ax):
 
 def makelegend(fig,ax, x):
     handles, labels = ax.get_legend_handles_labels()
-    leg = fig.legend(handles,labels, loc="bottom right", bbox_to_anchor=(0.989, x), fontsize = "xx-large")
+    leg = fig.legend(handles,labels, loc="upper right", bbox_to_anchor=(0.989, x), fontsize = "xx-large")
     for l in leg.get_lines():l.set_linewidth(2)
     frame  = leg.get_frame()
     frame.set_edgecolor('w')
