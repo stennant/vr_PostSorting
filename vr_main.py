@@ -55,7 +55,7 @@ Initializes parameters
 
 def init_params():
 
-    filename = '712_D20_2018-03-16_14-34-10'
+    filename = 'mcos_M2_D1_2018-06-04_14-32-13'
     #712_D23_2018-03-21_14-07-56
 
 
@@ -90,16 +90,17 @@ def process_a_dir(dir_name):
 
         # First is analysis of behaviour
 
-        #following functions process movement information and plot stops per trial
+        #process movement information and plot stops per trial
         vr_process_movement.save_or_open_movement_arrays(prm)
         vr_trial_types.save_or_open_trial_arrays(prm)
         vr_plot_stops.plot_stops(prm)
-        #print('Stops have been plotted')
+        print('Stops have been plotted')
 
         # plot firing times of clusters against location
-        #vr_sorted_firing_times.process_firing_times(prm)
-        #print('Firing times have been plotted')
+        vr_sorted_firing_times.process_firing_times(prm)
+        print('Firing locations of clusters have been plotted')
 
+        """""
         # Split the data according to movement and stationary - saves moved/stationary indicies from data, this helps us split channel data later
         vr_split_data.split_movement_and_stationary(prm)
         # load and process optogenetics - save indicies in data of light and no light, this helps us split channel data later
@@ -107,8 +108,8 @@ def process_a_dir(dir_name):
 
         light, no_light = vr_optogenetics.split_light_and_no_light_trials(prm) # need for plot stops and plotting continuous
 
-        for c, channel in enumerate(np.arange(1,16,1)):
-            if channel ==0 or channel == 13:
+        for c, channel in enumerate(np.arange(1,16,1)): # loop through channels
+            if channel ==0 or channel == 1 or channel ==2 or channel ==3: # pick which channels to analyse and plot
 
                 #load continuous data
                 channel_data = vr_plot_continuous_data.load_continuous_data(prm, channel)
@@ -144,9 +145,11 @@ def process_a_dir(dir_name):
                     vr_track_location_analysis.plot_track_locations_examples(prm,2, channel,data=homebound)
 
                     #vr_track_location_analysis.calculate_and_plot_power_spectrum_track_locations(prm, outbound[:,2], rewardzone[:,2], homebound[:,2], channel)
-        # load and plot stops with opto highlighted
+
+        # load and plot stops with opto highlighted - have to do this after main opto loop
         #vr_plot_stops.plot_opto_stops(prm)
 
+        """""
 
 
 def process_files():
