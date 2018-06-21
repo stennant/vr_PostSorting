@@ -135,8 +135,6 @@ def get_stops_on_trials_find_stops(location, number_of_trials, all_stops, track_
         #print(stops_on_trial_indices, 'stops_on_trial_indices')
 
         stops_on_trial = np.take(all_stops, stops_on_trial_indices)
-        #print(stops_on_trial, 'stops_on_trial', stops_on_trial.shape)
-        #print(all_stops, 'all stops')
         if len(stops_on_trial) > 0:
             stops = np.take(location, stops_on_trial)
 
@@ -189,11 +187,6 @@ def get_pooled_data(number_of_days):
 
 
 
-
-
-
-
-
 def get_data_for_spikes_on_trials(prm, firing_times_unit):
     behaviour_path = prm.get_behaviour_data_path()
     number_of_trials = np.load(prm.get_behaviour_data_path() + '/trial_num.npy')
@@ -210,9 +203,8 @@ def get_spikes_on_trials_find_stops(location, number_of_trials, trials, all_stop
     stops_on_trials = []
     location = np.asanyarray(location)
     number_of_trials = np.asanyarray(number_of_trials)
-    #all_stops = np.asanyarray(all_stops)
+    all_stops = np.asanyarray(all_stops)
     track_beginnings = np.asanyarray(track_beginnings)
-    #print(all_stops, 'all spikes')
     for trial in range(number_of_trials - 1):
         beginning = track_beginnings[trial]
         end = track_beginnings[trial + 1]
