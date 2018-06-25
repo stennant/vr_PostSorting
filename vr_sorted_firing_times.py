@@ -56,7 +56,6 @@ def get_snippets(prm):
     spike_index = firings.root.spikeind[:]
     spike_index = spike_index.flatten()
     waveforms = firings.root.waveforms[:]
-    #print(spike_index[0:100],'spike_index',spike_index.shape, cluster_id[0:100], 'cluster_id' ,cluster_id.shape)
     return cluster_id, spike_index, waveforms
 
 
