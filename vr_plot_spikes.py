@@ -101,7 +101,6 @@ def shuffle_stops(shuffled_spikes_on_trials):
         # create an array that contains the amount by which every stop will be shuffled
         rand_rotation = uniform.rvs(loc=0, scale=20, size=trial.shape[1])
         # add random value
-        #print(spikes_on_trials[ith], 'rand_rotation', rand_rotation)
         shuffled_spikes_on_trials[ith] = rand_rotation
 
     return shuffled_spikes_on_trials
@@ -135,15 +134,13 @@ def calculate_p_value(shuff,re):
     for loc_count,loc in enumerate(np.arange(1,200,1)):
         shuffled = shuff[loc_count,:]
         real = re[loc_count,:]
-        print(real, 'real', shuffled, 'shuffled')
         tstat, p_value = stats.ttest_ind(shuffled,real, equal_var = True)
-        print(p_value, tstat)
         p_values[loc_count] = p_value
     return p_values
 
 
 def make_plot(prm, spikes_on_trials, channelcount, stops_on_trials, time_normalised_bin_locations, time_normalised_bin_locations_nb, inverval_locations, p_values):
-    fig = plt.figure(figsize = (12,10))
+    fig = plt.figure(figsize = (12,10)) # figsize = (width, height)
     ax = fig.add_subplot(221)
     plt.xlim(0, 200)
 
