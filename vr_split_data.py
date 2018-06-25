@@ -27,7 +27,7 @@ output
 
 
 
-def split_movement_and_stationary_indicies(prm):
+def save_indicies_for_movement_and_stationary(prm):
     global trial_num
 
     if os.path.isfile(prm.get_filepath() + "Behaviour/Data/moves_indicies.npy") is False:
@@ -53,17 +53,6 @@ def split_movement_and_stationary_indicies(prm):
 
 
 
-def split_movement_and_stationary(prm):
-
-    if os.path.isfile(prm.get_filepath() + "Behaviour/Data/moves_indicies.npy") is False:
-
-        #split movement and stationary data
-        moves, stationary = split_movement_and_stationary_indicies(prm)
-
-
-
-
-
 
 # split the data based on previously saved indicies
 def split_movement_stationary_channel(prm, channel_all_data):
@@ -83,7 +72,6 @@ def split_movement_stationary_channel(prm, channel_all_data):
 
 
 
-
 # find duplicate values in array and save them into a seperate array
 def duplicates(seq):
     print('finding duplicate indicies...')
@@ -92,7 +80,6 @@ def duplicates(seq):
     # adds all elements it doesn't know yet to seen and all other to seen_twice
     seen_twice = set(x for x in seq if x in seen or seen_add(x))
     return list(seen_twice)
-
 
 
 
@@ -142,10 +129,10 @@ def split_light_and_no_light_indicies(prm):
 
 
 
-def split_light_and_nolight(prm):
+def save_indicies_for_light_and_no_light(prm):
 
+    #load and save opto channel data
     opto_data = vr_optogenetics.load_and_save_opto_channel(prm)
-    print('opto channel loaded')
 
     #split data according to light and no light stimulation
     light, no_light = split_light_and_no_light_indicies(prm)
