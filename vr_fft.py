@@ -14,39 +14,37 @@ import numpy as np
 import pylab as pl
 from scipy.fftpack import fft, rfft, fftfreq
 import pylab as plt
-
+import vr_plot_utility
 
 # plot power spectrum for channel
 # this function is copied from StackExchange
-def power_spectrum(channel, color, sampling_rate):
-    # channel = data['data'][:,10][-50947920:]
-    # #channel 11, 5th of the data is removed from the beginning because of noise
+def power_spectrum(prm, channel, color, sampling_rate):
     ps = np.abs(np.fft.fft(channel))**2
     time_step = 1 / 30000
     freqs = np.fft.fftfreq(channel.size, time_step)
     idx = np.argsort(freqs)
     plt.plot(freqs[idx], ps[idx])
-    plt.xlabel('$Frequency (Hz)$')
-    plt.ylabel('$PSD (V^2/Hz)$')
-    plt.xlim(0, 150)
+    plt.xlabel('$Frequency (Hz)$', fontsize = 18)
+    plt.ylabel('$PSD (V^2/Hz)$', fontsize = 18)
+    plt.xlim(0, 100)
     #plt.ylim(0, 1)
 
 
 
 
 # plot logarithmic power spectrum for channel
-def power_spectrum_log(prm, channel, sampling_rate, color, filename, title="$Power  spectrum$", x_lim=150, line_width=15,
+def power_spectrum_log(prm, ax, channel, sampling_rate, color, filename, title="$Power  spectrum$", x_lim=130, line_width=15,
                        legend='set legend'):
-    window = scipy.signal.get_window('hamming', channel.size)
+    window = scipy.signal.get_window('hamming', len(channel))
     f, pxx_den = signal.periodogram(channel, sampling_rate, window)
 
-    plt.plot(f, np.sqrt(pxx_den), color, line_width)
-    plt.title(title)
+    ax.plot(f, np.sqrt(pxx_den), color, line_width)
+    ax.set_title(title)
 
-    plt.xlim([0, x_lim])
-    plt.ylim([5, 300])
-    plt.xlabel('$Frequency (Hz)$', fontsize = 18)
-    plt.ylabel('$PSD (V^2/Hz)$', fontsize = 18)
+    ax.set_xlim([0, x_lim])
+    #ax.set_xlim([5, 130])
+    ax.set_xlabel('$Frequency (Hz)$', fontsize = 16)
+    ax.set_ylabel('$PSD (V^2/Hz)$', fontsize = 16)
     #plt.savefig(filename + ".png")
 
 
@@ -72,7 +70,7 @@ def power_spectrum_log2(prm, channel, sampling_rate, color, filename, title="$Po
 # plot logarithmic power spectrum for channel
 def power_spectrum_log_inset(prm, channel, sampling_rate, color, filename, title="$Power  spectrum$", x_lim=15, line_width=15,
                        legend='set legend'):
-    window = scipy.signal.get_window('hamming', channel.size)
+    window = scipy.signal.get_window('hann', channel.size)
     f, pxx_den = signal.periodogram(channel, sampling_rate, window)
 
     plt.plot(f, np.sqrt(pxx_den), color, line_width)
@@ -260,6 +258,67 @@ def calculate_and_plot_power_spectrum(prm, moves, stationary, channel):
     # calculate and plot power spectrum
     #plot_power_spectrum(prm, channel_all_data[0,:], channel)
     plot_power_spectrum_moves(prm, moves, stationary,  channel)
+
+
+
+def generate_theta(prm):
+
+    Fs = 30000 # time of sample
+    f = 7.5 # frequency of signal generated
+    sample = 3000000 # sampling rate
+    x = np.arange(sample)
+    y = np.sin(2 * np.pi * f * x / Fs) # find sine angle of signal
+    plt.plot(x, y)
+    plt.xlabel('sample(n)')
+    plt.ylabel('voltage(V)')
+    plt.show()
+
+    return y
+
+
+def generate_gamma(prm):
+
+    Fs = 30000 # time of sample
+    f = 65 # frequency of signal generated
+    sample = 3000000 # sampling rate
+    x = np.arange(sample)
+    y = np.sin(2 * np.pi * f * x / Fs) # find sine angle of signal
+    plt.plot(x, y)
+    plt.xlabel('sample(n)')
+    plt.ylabel('voltage(V)')
+    plt.show()
+
+    return y
+
+
+def test_fft(prm):
+
+    # calculate and plot power spectrum
+    signal_t = generate_theta(prm)
+    signal_g = generate_gamma(prm)
+    signal = signal_t+signal_g
+    plot_test_power_spectrum(prm,signal)
+
+
+def plot_test_power_spectrum(prm, data):
+
+    print('Plotting and saving power spectra')
+
+    fig, ax = plt.subplots()
+
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.xaxis.set_ticks_position('bottom')
+    ax.yaxis.set_ticks_position('left')
+    ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+    ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+    vr_plot_utility.adjust_spine_thickness(ax)
+
+    power_spectrum(prm, data, 30000, 'k')
+    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/fft/CH' + '_test.png', dpi=200)
+    power_spectrum_log(prm, data, 30000, 'k', prm.get_filename(), title="$Power spectrum$", x_lim=10, line_width=15, legend='stationary')
+    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/fft/CH' + '_test2.png', dpi=200)
+    plt.close()
 
 
 
