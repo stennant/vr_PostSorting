@@ -58,7 +58,7 @@ def create_ephys_folder_structure(prm):
 
     track_location_analysis_path = ephys_path + '/track_location_analysis'
     continuous_track_location_analysis_path = track_location_analysis_path + '/continuous'
-    ffs_track_location_analysis_path = track_location_analysis_path + '/ffs'
+    ffs_track_location_analysis_path = track_location_analysis_path + '/fft'
 
     data_path = prm.get_filepath() + 'Data'
 
