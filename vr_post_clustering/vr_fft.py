@@ -32,10 +32,10 @@ def power_spectrum(prm, channel, color, sampling_rate):
 
 
 # plot logarithmic power spectrum for channel
-def power_spectrum_log(prm, ax, channel, sampling_rate):
+def power_spectrum_log(prm, ax, channel, sampling_rate, color, label):
     window = scipy.signal.get_window('hamming', len(channel))
     f, pxx_den = signal.periodogram(channel, sampling_rate, window, return_onesided=True)
-    ax.plot(f, np.sqrt(pxx_den), 'k')
+    ax.plot(f, np.sqrt(pxx_den), color, label = label)
     ax.set_xlim([0, 130])
     #ax.set_xlim([5, 130])
     #plt.savefig(filename + ".png")
