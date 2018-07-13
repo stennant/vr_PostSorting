@@ -63,7 +63,6 @@ def split_movement_stationary_channel(prm, channel_all_data):
     channel_all_data = np.transpose(channel_all_data)
     channel_all_data = vr_process_movement.remove_beginning_and_end(prm,channel_all_data[:,0])
 
-
     #print(channel_all_data.shape, moves_light.shape)
     moves = np.take(channel_all_data, moves)
     stationary = np.take(channel_all_data, stationary)
@@ -81,6 +80,15 @@ def duplicates(seq):
     seen_twice = set(x for x in seq if x in seen or seen_add(x))
     return list(seen_twice)
 
+
+# find duplicate values in array and save them into a seperate array
+def not_duplicates(seq):
+    print('finding duplicate indicies...')
+    seen = set()
+    seen_add = seen.add
+    # adds all elements it doesn't know yet to seen and all other to seen_twice
+    not_seen_twice = set(x for x in seq if x in seen or seen_add(x))
+    return list(not_seen_twice)
 
 
 def split_light_and_no_light_indicies(prm):
@@ -140,11 +148,6 @@ def save_indicies_for_light_and_no_light(prm):
 
 
 
-
-
-
-
-
 # split the data based on previously saved indicies
 def split_light_nolight_movement_stationary(prm, channel_all_data):
 
@@ -179,3 +182,81 @@ def split_light_nolight_movement_stationary(prm, channel_all_data):
     stationary_nolight = np.take(channel_all_data, stationary_nolight)
 
     return moves_light, stationary_light, moves_nolight, stationary_nolight
+
+
+def calculate_miss_trials(prm, trials, store):
+    trial_numbers = np.unique(trials)
+    hit_trials = np.unique(store)
+
+    seq = np.hstack((trial_numbers,hit_trials))
+    unique_trials, unique_counts = np.unique(seq, return_counts=True)
+    miss_trials = unique_trials[np.where(unique_counts[:] == 1)]
+
+    print(hit_trials,miss_trials,'hit miss trials')
+
+    return miss_trials
+
+
+def calculate_hit_trials(prm):
+    trials = np.load(prm.get_filepath() + "Behaviour/Data/trial_numbers.npy")
+    location = np.load(prm.get_filepath() + "Behaviour/Data/location.npy")
+    speed = np.load(prm.get_filepath() + "Behaviour/Data/speed.npy")
+    STOP_THRESHOLD = 0.7
+
+    array = np.vstack((location, speed, trials)); array = np.transpose(array)
+    trial_numbers = np.unique(array[:,2])
+
+    moving = False
+    store = []
+    for tcount, trial in enumerate(trial_numbers):
+        data = array[array[:,2] == trial,:]
+        for rowcount, row in enumerate(data):
+             if(data[rowcount,1]<=STOP_THRESHOLD and moving and data[rowcount,0] > 88 and data[rowcount, 0] < 110): # if speed is below threshold
+                moving = False
+                trial = data[rowcount,2]
+                store = np.append(store,trial)
+             if(row[1]>STOP_THRESHOLD and not moving):
+                moving = True
+        tcount+=1
+
+    return np.array(store), trials
+
+
+def hit_miss_indicies(prm):
+
+    hit_trials, trials = calculate_hit_trials(prm)
+    miss_trials = calculate_miss_trials(prm, trials, hit_trials)
+
+    print('hit and miss trials split')
+    np.save(prm.get_filepath() + "Behaviour/Data/hit_trials", hit_trials)
+    np.save(prm.get_filepath() + "Behaviour/Data/miss_trials", miss_trials)
+
+    return hit_trials, miss_trials
+
+
+
+def hit_miss_trials(prm, hit_trials, miss_trials, before_stop, after_stop):
+    trials_hit = np.unique(hit_trials)
+    trials_miss = np.unique(miss_trials)
+
+
+    hit_before_stop = np.zeros((0, before_stop.shape[1]))
+    hit_after_stop = np.zeros((0, before_stop.shape[1]))
+
+    for tcount, trial in enumerate(trials_hit):
+        data_before = before_stop[before_stop[:,0] == trial,:]
+        data_after = after_stop[after_stop[:,0] == trial,:]
+        hit_before_stop = np.vstack((hit_before_stop,data_before))
+        hit_after_stop = np.vstack((hit_after_stop,data_after))
+
+    miss_before_stop = np.zeros((0, before_stop.shape[1]))
+    miss_after_stop = np.zeros((0, before_stop.shape[1]))
+
+    for tcount, trial in enumerate(trials_miss):
+        data_before = before_stop[before_stop[:,0] == trial,:]
+        data_after = after_stop[after_stop[:,0] == trial,:]
+        miss_before_stop = np.vstack((miss_before_stop,data_before))
+        miss_after_stop = np.vstack((miss_after_stop,data_after))
+
+    print(miss_after_stop.shape)
+    return hit_before_stop,miss_before_stop,hit_after_stop,miss_after_stop
