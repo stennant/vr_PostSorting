@@ -197,19 +197,19 @@ def trial_numbers(prm,location):
 
     print('loading trial numbers...')
 
-    if os.path.isfile(prm.get_behaviour_data_path() + "/trial_num.npy") is False:
-        trial_num = 1
-        for i in range(len(location)):
-            if i > 0 and (location[i-1]-location[i]) > 150:
-                trial_num += 1
-            trials[i] = trial_num
+    trial_num = 1
+    for i in range(len(location)):
+        if i > 0 and (location[i-1]-location[i]) > 150:
+            trial_num += 1
+        trials[i] = trial_num
 
-        np.save(prm.get_behaviour_data_path() + "/trial_numbers", trials)
-        np.save(prm.get_behaviour_data_path() + "/trial_num", trial_num)
+    np.save(prm.get_behaviour_data_path() + "/trial_numbers", trials)
+    np.save(prm.get_behaviour_data_path() + "/trial_num", trial_num)
     #else:
     #    trial_num = np.load(prm.get_behaviour_data_path() + "/trial_num.npy")
     #    trials = np.load(prm.prm.get_behaviour_data_path() + "/trial_numbers.npy")
     print('trial numbers loaded')
+
 
 
 """"
