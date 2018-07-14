@@ -11,9 +11,9 @@ import vr_process_movement
 import vr_fft
 
 
+# continuous data plots
 
-
-def plot_continuous_trials(prm, data, channel):
+def plot_continuous_trials(prm, data, channel): # plots continuous data for an entire trial
 
     print('plotting continuous data per trial...')
 
@@ -80,6 +80,9 @@ def plot_continuous_trials(prm, data, channel):
         tcount+=1
 
 
+
+# power spectras for before and after stop data
+
 def plot_power_spectrum_before_after_stop(prm, before_stop, after_stop, channel):
     ephys_path = prm.get_filepath() + 'Electrophysiology'
     data_path = ephys_path + '/Data'
@@ -93,17 +96,17 @@ def plot_power_spectrum_before_after_stop(prm, before_stop, after_stop, channel)
         os.makedirs(analysis_path)
         os.makedirs(spike_path)
 
-    print('Plotting and saving power spectra')
+    print('Plotting and saving power spectra for before (moving) and after (not moving) stops')
 
     # beforestop
-    fig = plt.figure(figsize = (10,6)) # figsize = (width, height)
+    fig = plt.figure(figsize = (10,4.5)) # figsize = (width, height)
     ax = fig.add_subplot(121)
     ax.set_title('Before stop (moving)', fontsize = 16)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     ax.xaxis.set_ticks_position('bottom')
     ax.yaxis.set_ticks_position('left')
-    ax.set_ylim(0,50)
+    ax.set_ylim(0,40)
     ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
     ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
     vr_plot_utility.adjust_spine_thickness(ax)
@@ -118,29 +121,28 @@ def plot_power_spectrum_before_after_stop(prm, before_stop, after_stop, channel)
     ax.spines['top'].set_visible(False)
     ax.xaxis.set_ticks_position('bottom')
     ax.yaxis.set_ticks_position('left')
-    ax.set_ylim(0,50)
+    ax.set_ylim(0,40)
     ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
     ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
     ax.set_xlabel('Frequency (Hz)', fontsize = 18, labelpad = 10)
     vr_plot_utility.adjust_spine_thickness(ax)
     vr_fft.power_spectrum_log(prm, ax, after_stop[:7500], 30000, color='k', label='middle upper')
-    plt.subplots_adjust(hspace = .35, wspace = .5,  bottom = 0.2, left = 0.2, right = 0.92, top = 0.92) # change spacing in figure
-    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/fft/CH' + str(channel) + '_before_after_stop.png', dpi=200)
+    plt.subplots_adjust(hspace = .35, wspace = .4,  bottom = 0.2, left = 0.13, right = 0.72, top = 0.87) # change spacing in figure
+    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/fft/CH' + str(channel) + '_before_and_after_stop.png', dpi=200)
     plt.close()
-
 
 
 
 def plot_power_spectrum_track_locations(prm, after_stop_outbound, after_stop_rewardzone, after_stop_homebound, before_stop_outbound, before_stop_rewardzone,  before_stop_homebound, channel):
 
 
-    print('Plotting and saving power spectra')
+    print('Plotting and saving power spectra for track locations')
 
     # outbound
-    fig = plt.figure(figsize = (12,12)) # figsize = (width, height)
+    fig = plt.figure(figsize = (10,4.5)) # figsize = (width, height)
 
-    ax = fig.add_subplot(321)
-    ax.set_title('After stop (stationary) \n 70-90 cm', fontsize = 16)
+    ax = fig.add_subplot(121)
+    ax.set_title('After stop (stationary)', fontsize = 16)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     ax.xaxis.set_ticks_position('bottom')
@@ -149,40 +151,14 @@ def plot_power_spectrum_track_locations(prm, after_stop_outbound, after_stop_rew
     ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
     ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
     vr_plot_utility.adjust_spine_thickness(ax)
-    vr_fft.power_spectrum_log(prm, ax, after_stop_outbound[:7500], 30000, color='k', label='middle upper')
-    ax.set_ylabel('PSD (V^2/Hz)', fontsize = 18, labelpad = 10)
-
-    ax = fig.add_subplot(323)
-    ax.set_title('Reward zone', fontsize = 16)
-    ax.spines['right'].set_visible(False)
-    ax.spines['top'].set_visible(False)
-    ax.xaxis.set_ticks_position('bottom')
-    ax.yaxis.set_ticks_position('left')
-    ax.set_ylim(0,60)
-    ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
-    ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
-    vr_plot_utility.adjust_spine_thickness(ax)
-    vr_fft.power_spectrum_log(prm, ax, after_stop_rewardzone[:7500], 30000, color='k', label='middle upper')
-    ax.set_ylabel('PSD (V^2/Hz)', fontsize = 18, labelpad = 10)
-
-    # reward zone
-    ax = fig.add_subplot(325)
-    ax.set_title('110-130 cm', fontsize = 16)
-    ax.spines['right'].set_visible(False)
-    ax.spines['top'].set_visible(False)
-    ax.xaxis.set_ticks_position('bottom')
-    ax.yaxis.set_ticks_position('left')
-    ax.set_ylim(0,60)
-    ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
-    ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
-    vr_plot_utility.adjust_spine_thickness(ax)
-    vr_fft.power_spectrum_log(prm, ax, after_stop_homebound[:7500], 30000, color='k', label='middle upper')
+    vr_fft.power_spectrum_log(prm, ax, after_stop_outbound[:7500], 30000, color='k', label='70 - 90 cm')
+    vr_fft.power_spectrum_log(prm, ax, after_stop_rewardzone[:7500], 30000, color='b', label='Reward zone')
+    vr_fft.power_spectrum_log(prm, ax, after_stop_homebound[:7500], 30000, color='r', label='110 - 130 cm')
     ax.set_ylabel('PSD (V^2/Hz)', fontsize = 18, labelpad = 10)
     ax.set_xlabel('Frequency (Hz)', fontsize = 18, labelpad = 10)
 
-
-    ax = fig.add_subplot(322)
-    ax.set_title('Before stop (moving) \n 70-90 cm', fontsize = 16)
+    ax = fig.add_subplot(122)
+    ax.set_title('Before stop (moving)', fontsize = 16)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     ax.xaxis.set_ticks_position('bottom')
@@ -191,36 +167,61 @@ def plot_power_spectrum_track_locations(prm, after_stop_outbound, after_stop_rew
     ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
     ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
     vr_plot_utility.adjust_spine_thickness(ax)
-    vr_fft.power_spectrum_log(prm, ax, before_stop_outbound[:7500], 30000, color='k', label='middle upper')
-
-    # homebound
-    ax = fig.add_subplot(324)
-    ax.set_title('Reward zone', fontsize = 16)
-    ax.spines['right'].set_visible(False)
-    ax.spines['top'].set_visible(False)
-    ax.xaxis.set_ticks_position('bottom')
-    ax.yaxis.set_ticks_position('left')
-    ax.set_ylim(0,60)
-    ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
-    ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
-    vr_plot_utility.adjust_spine_thickness(ax)
-    vr_fft.power_spectrum_log(prm, ax, before_stop_rewardzone[:7500], 30000, color='k', label='middle upper')
-
-    ax = fig.add_subplot(326)
-    ax.set_title('110-130 cm', fontsize = 16)
-    ax.spines['right'].set_visible(False)
-    ax.spines['top'].set_visible(False)
-    ax.xaxis.set_ticks_position('bottom')
-    ax.yaxis.set_ticks_position('left')
-    ax.set_ylim(0,60)
-    ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
-    ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
-    vr_plot_utility.adjust_spine_thickness(ax)
-    vr_fft.power_spectrum_log(prm, ax, before_stop_homebound[:7500], 30000, color='k', label='middle upper')
+    vr_fft.power_spectrum_log(prm, ax, before_stop_outbound[:7500], 30000, color='k', label='70 - 90 cm')
+    vr_fft.power_spectrum_log(prm, ax, before_stop_rewardzone[:7500], 30000, color='b', label='Reward zone')
+    vr_fft.power_spectrum_log(prm, ax, before_stop_homebound[:7500], 30000, color='r', label='110 - 130 cm')
     ax.set_xlabel('Frequency (Hz)', fontsize = 18, labelpad = 10)
+    vr_plot_utility.makelegend(fig,ax, 0.7)
 
-    plt.subplots_adjust(hspace = .4, wspace = .4,  bottom = 0.1, left = 0.1, right = 0.92, top = 0.92) # change spacing in figure
+    plt.subplots_adjust(hspace = .35, wspace = .4,  bottom = 0.2, left = 0.13, right = 0.72, top = 0.87) # change spacing in figure
     fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/fft/CH' + str(channel) + '_locations.png', dpi=200)
+    plt.close()
+
+
+
+
+def plot_power_spectrum_track_locations_gamma2(prm, after_stop_outbound, after_stop_rewardzone, after_stop_homebound, before_stop_outbound, before_stop_rewardzone,  before_stop_homebound, channel):
+
+
+    print('Plotting and saving power spectra for track locations')
+
+    # outbound
+    fig = plt.figure(figsize = (10,4.5)) # figsize = (width, height)
+
+    ax = fig.add_subplot(121)
+    ax.set_title('After stop (stationary)', fontsize = 16)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.xaxis.set_ticks_position('bottom')
+    ax.yaxis.set_ticks_position('left')
+    ax.set_ylim(0,10)
+    ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+    ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+    vr_plot_utility.adjust_spine_thickness(ax)
+    vr_fft.power_spectrum_log(prm, ax, after_stop_outbound[:7500], 30000, color='k', label='70 - 90 cm')
+    vr_fft.power_spectrum_log(prm, ax, after_stop_rewardzone[:7500], 30000, color='b', label='Reward zone')
+    vr_fft.power_spectrum_log(prm, ax, after_stop_homebound[:7500], 30000, color='r', label='110 - 130 cm')
+    ax.set_ylabel('PSD (V^2/Hz)', fontsize = 18, labelpad = 10)
+    ax.set_xlabel('Frequency (Hz)', fontsize = 18, labelpad = 10)
+
+    ax = fig.add_subplot(122)
+    ax.set_title('Before stop (moving)', fontsize = 16)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.xaxis.set_ticks_position('bottom')
+    ax.yaxis.set_ticks_position('left')
+    ax.set_ylim(0,10)
+    ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+    ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+    vr_plot_utility.adjust_spine_thickness(ax)
+    vr_fft.power_spectrum_log(prm, ax, before_stop_outbound[:7500], 30000, color='k', label='70 - 90 cm')
+    vr_fft.power_spectrum_log(prm, ax, before_stop_rewardzone[:7500], 30000, color='b', label='Reward zone')
+    vr_fft.power_spectrum_log(prm, ax, before_stop_homebound[:7500], 30000, color='r', label='110 - 130 cm')
+    ax.set_xlabel('Frequency (Hz)', fontsize = 18, labelpad = 10)
+    vr_plot_utility.makelegend(fig,ax, 0.7)
+    ax.set_yticklabels(['', '', '', '','',''])
+    plt.subplots_adjust(hspace = .35, wspace = .4,  bottom = 0.2, left = 0.13, right = 0.72, top = 0.87) # change spacing in figure
+    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/fft/CH' + str(channel) + '_locations_gamma2.png', dpi=200)
     plt.close()
 
 
@@ -229,7 +230,7 @@ def plot_power_spectrum_track_locations(prm, after_stop_outbound, after_stop_rew
 def plot_power_spectrum_track_locations_gamma(prm, after_stop_outbound, after_stop_rewardzone, after_stop_homebound, before_stop_outbound, before_stop_rewardzone,  before_stop_homebound, channel):
 
 
-    print('Plotting and saving power spectra')
+    print('Plotting and saving power spectra for track locations (gamma)')
 
     # outbound
     fig = plt.figure(figsize = (12,12)) # figsize = (width, height)
@@ -314,18 +315,18 @@ def plot_power_spectrum_track_locations_gamma(prm, after_stop_outbound, after_st
     vr_fft.power_spectrum_log(prm, ax, before_stop_homebound[:7500], 30000, color='k', label='middle upper')
     ax.set_xlabel('Frequency (Hz)', fontsize = 18, labelpad = 10)
 
-    plt.subplots_adjust(hspace = .4, wspace = .4,  bottom = 0.1, left = 0.1, right = 0.92, top = 0.92) # change spacing in figure
+    plt.subplots_adjust(hspace = .4, wspace = .4,  bottom = 0.1, left = 0.13, right = 0.92, top = 0.92) # change spacing in figure
     fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/fft/CH' + str(channel) + '_locations_gamma.png', dpi=200)
     plt.close()
 
 
 
-def plot_power_spectrum_speed(prm, middle_upper,upper, middle_lower, lower, channel):
 
+# plots for speed
 
-    print('Plotting and saving power spectra')
+def plot_power_spectrum_speed(prm, upper,middle_upper, middle_lower, lower, channel):
 
-    print('Plotting and saving power spectra')
+    print('Plotting and saving power spectra for speed quartiles')
 
     # outbound
     fig = plt.figure(figsize = (6,6)) # figsize = (width, height)
@@ -340,24 +341,24 @@ def plot_power_spectrum_speed(prm, middle_upper,upper, middle_lower, lower, chan
     ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
     ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
     vr_plot_utility.adjust_spine_thickness(ax)
-    vr_fft.power_spectrum_log(prm, ax, middle_upper[:7500], 30000, color='k', label='middle upper')
-    vr_fft.power_spectrum_log(prm, ax, upper[:7500], 30000, color='r', label='upper')
-    vr_fft.power_spectrum_log(prm, ax, middle_lower[:7500], 30000, color='b', label='middle lower')
-    vr_fft.power_spectrum_log(prm, ax, lower[:7500], 30000, color='g', label='lower')
+    vr_fft.power_spectrum_log(prm, ax, upper[:7500], 30000, color='r', label='Upper quartile')
+    vr_fft.power_spectrum_log(prm, ax, middle_upper[:7500], 30000, color='k', label='Middle upper quartile')
+    vr_fft.power_spectrum_log(prm, ax, middle_lower[:7500], 30000, color='b', label='Middle lower quartile')
+    vr_fft.power_spectrum_log(prm, ax, lower[:7500], 30000, color='g', label='Lower quartile')
     ax.set_ylabel('PSD (V^2/Hz)', fontsize = 18, labelpad = 10)
     ax.set_xlabel('Frequency (Hz)', fontsize = 18, labelpad = 10)
     vr_plot_utility.makelegend(fig,ax, 0.7)
 
-    plt.subplots_adjust(hspace = .4, wspace = .4,  bottom = 0.1, left = 0.1, right = 0.92, top = 0.92) # change spacing in figure
+    plt.subplots_adjust(hspace = .4, wspace = .4,  bottom = 0.2, left = 0.16, right = 0.92, top = 0.92) # change spacing in figure
     fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/fft/CH' + str(channel) + '_speed.png', dpi=200)
     plt.close()
 
 
 
-def plot_power_spectrum_speed_gamma(prm, middle_upper,upper, middle_lower, lower, channel):
+def plot_power_spectrum_speed_gamma(prm, upper,middle_upper, middle_lower, lower, channel):
 
 
-    print('Plotting and saving power spectra')
+    print('Plotting and saving power spectra for speed quartile (gamma)')
 
     # outbound
     fig = plt.figure(figsize = (6,6)) # figsize = (width, height)
@@ -368,19 +369,19 @@ def plot_power_spectrum_speed_gamma(prm, middle_upper,upper, middle_lower, lower
     ax.spines['top'].set_visible(False)
     ax.xaxis.set_ticks_position('bottom')
     ax.yaxis.set_ticks_position('left')
-    ax.set_ylim(0,10)
+    ax.set_ylim(0,6)
     ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
     ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
     vr_plot_utility.adjust_spine_thickness(ax)
-    vr_fft.power_spectrum_log(prm, ax, middle_upper[:7500], 30000, color='k', label='middle upper')
-    vr_fft.power_spectrum_log(prm, ax, upper[:7500], 30000, color='r', label='upper')
-    vr_fft.power_spectrum_log(prm, ax, middle_lower[:7500], 30000, color='b', label='middle lower')
-    vr_fft.power_spectrum_log(prm, ax, lower[:7500], 30000, color='g', label='lower')
+    vr_fft.power_spectrum_log(prm, ax, middle_upper[:7500], 30000, color='k', label='Middle upper quartile')
+    vr_fft.power_spectrum_log(prm, ax, upper[:7500], 30000, color='r', label='Upper quartile')
+    vr_fft.power_spectrum_log(prm, ax, middle_lower[:7500], 30000, color='b', label='Middle lower quartile')
+    vr_fft.power_spectrum_log(prm, ax, lower[:7500], 30000, color='g', label='Lower quartile')
     ax.set_ylabel('PSD (V^2/Hz)', fontsize = 18, labelpad = 10)
     ax.set_xlabel('Frequency (Hz)', fontsize = 18, labelpad = 10)
-    vr_plot_utility.makelegend(fig,ax, 0.7)
+    vr_plot_utility.makelegend(fig,ax, 0.9)
 
-    plt.subplots_adjust(hspace = .4, wspace = .4,  bottom = 0.1, left = 0.1, right = 0.92, top = 0.92) # change spacing in figure
+    plt.subplots_adjust(hspace = .4, wspace = .4,  bottom = 0.2, left = 0.16, right = 0.92, top = 0.92) # change spacing in figure
     fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/fft/CH' + str(channel) + '_speed_gamma.png', dpi=200)
     plt.close()
 
@@ -392,72 +393,77 @@ def plot_power_spectrum_speed_locations_gamma(prm, outbound_m_upper,outbound_upp
     print('Plotting and saving power spectra')
 
     # outbound
-    fig = plt.figure(figsize = (10,6)) # figsize = (width, height)
+    fig = plt.figure(figsize = (14,4.5)) # figsize = (width, height)
 
-    ax = fig.add_subplot(311)
+    ax = fig.add_subplot(131)
     ax.set_title('70-90 cm', fontsize = 16)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     ax.xaxis.set_ticks_position('bottom')
     ax.yaxis.set_ticks_position('left')
-    ax.set_ylim(0,10)
+    ax.set_ylim(0,8)
     ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
     ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
     vr_plot_utility.adjust_spine_thickness(ax)
     vr_fft.power_spectrum_log(prm, ax, outbound_m_upper[:7500], 30000, color = 'k', label = 'Middle upper quartile')
     vr_fft.power_spectrum_log(prm, ax, outbound_upper[:7500], 30000, color = 'r', label = 'Upper quartile')
-    vr_fft.power_spectrum_log(prm, ax, outbound_m_lower[:7500], 30000, color = 'r', label = 'Lower middle quartile')
-    vr_fft.power_spectrum_log(prm, ax, outbound_lower[:7500], 30000, color = 'r', label = 'Lower quartile')
+    vr_fft.power_spectrum_log(prm, ax, outbound_m_lower[:7500], 30000, color = 'b', label = 'Lower middle quartile')
+    vr_fft.power_spectrum_log(prm, ax, outbound_lower[:7500], 30000, color = 'g', label = 'Lower quartile')
     ax.set_ylabel('PSD (V^2/Hz)', fontsize = 18, labelpad = 10)
-    ax.set_xlabel('Frequency (Hz)', fontsize = 1, labelpad = 108)
+    ax.set_xlabel('Frequency (Hz)', fontsize = 18, labelpad = 10)
 
-    ax = fig.add_subplot(312)
+    ax = fig.add_subplot(132)
     ax.set_title('Reward Zone', fontsize = 16)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     ax.xaxis.set_ticks_position('bottom')
     ax.yaxis.set_ticks_position('left')
-    ax.set_ylim(0,10)
+    ax.set_ylim(0,8)
     ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
     ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
     vr_plot_utility.adjust_spine_thickness(ax)
     vr_fft.power_spectrum_log(prm, ax, rz_m_upper[:7500], 30000, color = 'k', label = 'Middle upper quartile')
     vr_fft.power_spectrum_log(prm, ax, rz_upper[:7500], 30000, color = 'r', label = 'Upper quartile')
-    vr_fft.power_spectrum_log(prm, ax, rz_m_lower[:7500], 30000, color = 'r', label = 'Lower middle quartile')
-    vr_fft.power_spectrum_log(prm, ax, rz_lower[:7500], 30000, color = 'r', label = 'Lower quartile')
-    ax.set_xlabel('Frequency (Hz)', fontsize = 1, labelpad = 108)
+    vr_fft.power_spectrum_log(prm, ax, rz_m_lower[:7500], 30000, color = 'b', label = 'Lower middle quartile')
+    vr_fft.power_spectrum_log(prm, ax, rz_lower[:7500], 30000, color = 'g', label = 'Lower quartile')
+    ax.set_yticklabels(['', '', '', '','',''])
+    ax.set_xlabel('Frequency (Hz)', fontsize = 18, labelpad = 10)
     vr_plot_utility.makelegend(fig,ax, 0.7)
 
     # reward zone
-    ax = fig.add_subplot(313)
+    ax = fig.add_subplot(133)
     ax.set_title('110 - 130 cm', fontsize = 16)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     ax.xaxis.set_ticks_position('bottom')
     ax.yaxis.set_ticks_position('left')
-    ax.set_ylim(0,10)
+    ax.set_ylim(0,8)
     ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
     ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
     vr_plot_utility.adjust_spine_thickness(ax)
     vr_fft.power_spectrum_log(prm, ax, hb_m_upper[:7500], 30000, color = 'k', label = 'Middle upper quartile')
     vr_fft.power_spectrum_log(prm, ax, hb_upper[:7500], 30000, color = 'r', label = 'Upper quartile')
-    vr_fft.power_spectrum_log(prm, ax, hb_m_lower[:7500], 30000, color = 'r', label = 'Lower middle quartile')
-    vr_fft.power_spectrum_log(prm, ax, hb_lower[:7500], 30000, color = 'r', label = 'Lower quartile')
-    ax.set_xlabel('Frequency (Hz)', fontsize = 1, labelpad = 108)
+    vr_fft.power_spectrum_log(prm, ax, hb_m_lower[:7500], 30000, color = 'b', label = 'Lower middle quartile')
+    vr_fft.power_spectrum_log(prm, ax, hb_lower[:7500], 30000, color = 'g', label = 'Lower quartile')
+    ax.set_yticklabels(['', '', '', '','',''])
+    ax.set_xlabel('Frequency (Hz)', fontsize = 18, labelpad = 10)
 
-    plt.subplots_adjust(hspace = .4, wspace = .4,  bottom = 0.1, left = 0.1, right = 0.92, top = 0.92) # change spacing in figure
+    plt.subplots_adjust(hspace = .4, wspace = .3,  bottom = 0.2, left = 0.1, right = 0.72, top = 0.9) # change spacing in figure
     fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/fft/CH' + str(channel) + '_speed_gamma_locations.png', dpi=200)
     plt.close()
 
+
+
+# plots for hit and miss seperated data
 
 def plot_power_spectrum_hitmiss_gamma(prm, hit_before_stop,miss_before_stop, hit_after_stop, miss_after_stop, channel):
 
     print('Plotting and saving power spectra')
 
     # outbound
-    fig = plt.figure(figsize = (10,6)) # figsize = (width, height)
+    fig = plt.figure(figsize = (10,4.5)) # figsize = (width, height)
 
-    ax = fig.add_subplot(221)
+    ax = fig.add_subplot(121)
     ax.set_title('Moving (before stop)', fontsize = 16)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
@@ -472,7 +478,7 @@ def plot_power_spectrum_hitmiss_gamma(prm, hit_before_stop,miss_before_stop, hit
     ax.set_ylabel('PSD (V^2/Hz)', fontsize = 18, labelpad = 10)
     ax.set_xlabel('Frequency (Hz)', fontsize = 18, labelpad = 10)
 
-    ax = fig.add_subplot(222)
+    ax = fig.add_subplot(122)
     ax.set_title('Stationary (after stop)', fontsize = 16)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
@@ -484,12 +490,87 @@ def plot_power_spectrum_hitmiss_gamma(prm, hit_before_stop,miss_before_stop, hit
     vr_plot_utility.adjust_spine_thickness(ax)
     vr_fft.power_spectrum_log(prm, ax, hit_after_stop[:7500], 30000, color = 'k', label = 'Hit trial')
     vr_fft.power_spectrum_log(prm, ax, miss_after_stop[:7500], 30000, color = 'b', label = 'Miss trial')
+    ax.set_yticklabels(['', '', '', '','',''])
+    ax.set_xlabel('Frequency (Hz)', fontsize = 18, labelpad = 10)
+    vr_plot_utility.makelegend(fig,ax, 0.7)
+
+    plt.subplots_adjust(hspace = .35, wspace = .4,  bottom = 0.2, left = 0.13, right = 0.72, top = 0.87) # change spacing in figure
+    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/fft/CH' + str(channel) + '_hit_miss_gamma.png', dpi=200)
+    plt.close()
+
+
+def plot_power_spectrum_hitmiss_speed_gamma(prm, hit_middle_upper,hit_upper, hit_middle_lower, hit_lower,miss_middle_upper,miss_upper, miss_middle_lower, miss_lower, channel):
+
+    print('Plotting and saving power spectra')
+
+    # outbound
+    fig = plt.figure(figsize = (10,10)) # figsize = (width, height)
+
+    ax = fig.add_subplot(221)
+    ax.set_title('Upper quartile', fontsize = 16)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.xaxis.set_ticks_position('bottom')
+    ax.yaxis.set_ticks_position('left')
+    ax.set_ylim(0,8)
+    ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+    ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+    vr_plot_utility.adjust_spine_thickness(ax)
+    vr_fft.power_spectrum_log(prm, ax, hit_upper[:7500], 30000, color = 'k', label = 'Hit trial')
+    vr_fft.power_spectrum_log(prm, ax, miss_upper[:7500], 30000, color = 'b', label = 'Miss trial')
+    ax.set_ylabel('PSD (V^2/Hz)', fontsize = 18, labelpad = 10)
+
+    ax = fig.add_subplot(222)
+    ax.set_title('Upper middle quartile', fontsize = 16)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.xaxis.set_ticks_position('bottom')
+    ax.yaxis.set_ticks_position('left')
+    ax.set_ylim(0,8)
+    ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+    ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+    vr_plot_utility.adjust_spine_thickness(ax)
+    vr_fft.power_spectrum_log(prm, ax, hit_middle_upper[:7500], 30000, color = 'k', label = 'Hit trial')
+    vr_fft.power_spectrum_log(prm, ax, miss_middle_upper[:7500], 30000, color = 'b', label = 'Miss trial')
+    ax.set_yticklabels(['', '', '', '','',''])
+    vr_plot_utility.makelegend(fig,ax, 0.3)
+
+    ax = fig.add_subplot(223)
+    ax.set_title('Lower middle quartile', fontsize = 16)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.xaxis.set_ticks_position('bottom')
+    ax.yaxis.set_ticks_position('left')
+    ax.set_ylim(0,8)
+    ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+    ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+    vr_plot_utility.adjust_spine_thickness(ax)
+    vr_fft.power_spectrum_log(prm, ax, hit_middle_lower[:7500], 30000, color = 'k', label = 'Hit trial')
+    vr_fft.power_spectrum_log(prm, ax, miss_middle_lower[:7500], 30000, color = 'b', label = 'Miss trial')
+    ax.set_ylabel('PSD (V^2/Hz)', fontsize = 18, labelpad = 10)
+    ax.set_xlabel('Frequency (Hz)', fontsize = 18, labelpad = 10)
+
+    ax = fig.add_subplot(224)
+    ax.set_title('Lower quartile', fontsize = 16)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.xaxis.set_ticks_position('bottom')
+    ax.yaxis.set_ticks_position('left')
+    ax.set_ylim(0,10)
+    ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+    ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+    vr_plot_utility.adjust_spine_thickness(ax)
+    vr_fft.power_spectrum_log(prm, ax, hit_lower[:7500], 30000, color = 'k', label = 'Hit trial')
+    vr_fft.power_spectrum_log(prm, ax, miss_lower[:7500], 30000, color = 'b', label = 'Miss trial')
+    ax.set_yticklabels(['', '', '', '','',''])
     ax.set_xlabel('Frequency (Hz)', fontsize = 18, labelpad = 10)
 
 
-    plt.subplots_adjust(hspace = .4, wspace = .4,  bottom = 0.1, left = 0.1, right = 0.92, top = 0.92) # change spacing in figure
-    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/fft/CH' + str(channel) + '_hit_miss_gamma.png', dpi=200)
+    plt.subplots_adjust(hspace = .4, wspace = .4,  bottom = 0.1, left = 0.1, right = 0.82, top = 0.92) # change spacing in figure
+    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/fft/CH' + str(channel) + '_hit_miss_speed_gamma.png', dpi=200)
     plt.close()
+
+
 
 
 
@@ -558,6 +639,13 @@ def plot_graph(array, start_time,end_time, fig):
     vr_plot_utility.adjust_spine_thickness(ax)
 
     plt.subplots_adjust(hspace = .35, wspace = .35,  bottom = 0.15, left = 0.1, right = 0.92, top = 0.92)
+
+
+
+
+
+
+
 
 
 
