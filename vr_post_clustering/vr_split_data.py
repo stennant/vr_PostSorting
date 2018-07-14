@@ -63,7 +63,6 @@ def split_movement_stationary_channel(prm, channel_all_data):
     channel_all_data = np.transpose(channel_all_data)
     channel_all_data = vr_process_movement.remove_beginning_and_end(prm,channel_all_data[:,0])
 
-    #print(channel_all_data.shape, moves_light.shape)
     moves = np.take(channel_all_data, moves)
     stationary = np.take(channel_all_data, stationary)
 
@@ -192,9 +191,8 @@ def calculate_miss_trials(prm, trials, store):
     unique_trials, unique_counts = np.unique(seq, return_counts=True)
     miss_trials = unique_trials[np.where(unique_counts[:] == 1)]
 
-    print(hit_trials,miss_trials,'hit miss trials')
-
     return miss_trials
+
 
 
 def calculate_hit_trials(prm):
@@ -222,6 +220,7 @@ def calculate_hit_trials(prm):
     return np.array(store), trials
 
 
+
 def hit_miss_indicies(prm):
 
     hit_trials, trials = calculate_hit_trials(prm)
@@ -230,6 +229,8 @@ def hit_miss_indicies(prm):
     print('hit and miss trials split')
     np.save(prm.get_filepath() + "Behaviour/Data/hit_trials", hit_trials)
     np.save(prm.get_filepath() + "Behaviour/Data/miss_trials", miss_trials)
+
+    print('Hit and miss trials calculated')
 
     return hit_trials, miss_trials
 
@@ -258,5 +259,49 @@ def hit_miss_trials(prm, hit_trials, miss_trials, before_stop, after_stop):
         miss_before_stop = np.vstack((miss_before_stop,data_before))
         miss_after_stop = np.vstack((miss_after_stop,data_after))
 
-    print(miss_after_stop.shape)
+    print('Before and after stop data separated for hit and miss trials')
+
     return hit_before_stop,miss_before_stop,hit_after_stop,miss_after_stop
+
+
+
+def hit_miss_speed(prm, hit_trials, miss_trials,  middle_upper,upper, middle_lower, lower):
+    trials_hit = np.unique(hit_trials)
+    trials_miss = np.unique(miss_trials)
+
+
+    hit_upper = np.zeros((0, middle_upper.shape[1]))
+    hit_m_upper = np.zeros((0, middle_upper.shape[1]))
+    hit_lower = np.zeros((0, middle_upper.shape[1]))
+    hit_m_lower = np.zeros((0, middle_upper.shape[1]))
+
+    for tcount, trial in enumerate(trials_hit):
+        data_upper = upper[upper[:,0] == trial,:]
+        data_m_upper = middle_upper[middle_upper[:,0] == trial,:]
+        data_lower = middle_lower[middle_lower[:,0] == trial,:]
+        data_m_lower = lower[lower[:,0] == trial,:]
+
+        hit_upper = np.vstack((hit_upper,data_upper))
+        hit_m_upper = np.vstack((hit_m_upper,data_m_upper))
+        hit_lower = np.vstack((hit_lower,data_lower))
+        hit_m_lower = np.vstack((hit_m_lower,data_m_lower))
+
+    miss_upper = np.zeros((0, middle_upper.shape[1]))
+    miss_m_upper = np.zeros((0, middle_upper.shape[1]))
+    miss_lower = np.zeros((0, middle_upper.shape[1]))
+    miss_m_lower = np.zeros((0, middle_upper.shape[1]))
+
+    for tcount, trial in enumerate(trials_miss):
+        data_upper = upper[upper[:,0] == trial,:]
+        data_m_upper = middle_upper[middle_upper[:,0] == trial,:]
+        data_lower = middle_lower[middle_lower[:,0] == trial,:]
+        data_m_lower = lower[lower[:,0] == trial,:]
+
+        miss_upper = np.vstack((miss_upper,data_upper))
+        miss_m_upper = np.vstack((miss_m_upper,data_m_upper))
+        miss_lower = np.vstack((miss_lower,data_lower))
+        miss_m_lower = np.vstack((miss_m_lower,data_m_lower))
+
+    print('Speed data separated for hit and miss trials')
+
+    return miss_upper,miss_m_upper,miss_lower,miss_m_lower,hit_upper,hit_m_upper,hit_lower,hit_m_lower
