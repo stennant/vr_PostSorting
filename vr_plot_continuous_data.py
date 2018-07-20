@@ -199,10 +199,19 @@ def plot_continuous_opto(prm, channel_data_all,channel, light,nolight,theta, gam
     #nolight = np.take((nolight, np.where(nolight[:,4] > 0.7)))
 
     #plot
+    #vr_optogenetics.plot_all_opto_data(prm, light, channel, 1)
+    #vr_optogenetics.plot_all_opto_data(prm, nolight, channel, 2)
 
-    vr_optogenetics.plot_continuous_opto_data(prm, light, channel, 1,)
-    vr_optogenetics.plot_continuous_opto_data(prm, nolight, channel, 2)
+    vr_optogenetics.plot_continuous_opto_trials(prm, light, channel, 1)
+    vr_optogenetics.plot_continuous_opto_trials(prm, nolight, channel, 2)
+    #vr_optogenetics.plot_continuous_opto_data(prm, light, channel, 1,)
+    #vr_optogenetics.plot_continuous_opto_data(prm, nolight, channel, 2)
     #plot filtered data
     #plot_continuous_filtered_data(prm, channel_data_all, channel)
     #print('continuous raw data analysed and plotted')
+
+
+
+
+
 
