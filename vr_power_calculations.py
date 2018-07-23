@@ -152,17 +152,17 @@ def calculate_power_versus_speed(prm,data, channel):
     bins,speed_bins = bin_speed_data(prm,data)
     vr_power_calculations_plots.plot_gamma_power_speed(prm, bins,speed_bins, channel)
 
-    data = np.vstack((speed,theta_power)); data = np.transpose(data)
-    bins,speed_bins = bin_speed_data(prm,data)
-    vr_power_calculations_plots.plot_theta_power_speed(prm, bins,speed_bins, channel)
+    #data = np.vstack((speed,theta_power)); data = np.transpose(data)
+    #bins,speed_bins = bin_speed_data(prm,data)
+    #vr_power_calculations_plots.plot_theta_power_speed(prm, bins,speed_bins, channel)
 
 
 def calculate_and_plot_pooled_gamma_power_stop_start(prm,before_stop, after_stop,  channel):
 
     after_store,before_store = find_gamma_power(prm, before_stop[:,5], after_stop[:,5],  channel)
     vr_power_calculations_plots.plot_gamma_power_stop_start(prm,after_store,before_store, channel)
-    difference = find_gamma_power_difference(after_store,before_store)
-    vr_power_calculations_plots.plot_gamma_power_difference_stop_start(prm,difference, channel)
+    #difference = find_gamma_power_difference(after_store,before_store)
+    #vr_power_calculations_plots.plot_gamma_power_difference_stop_start(prm,difference, channel)
 
 
 def calculate_and_plot_pooled_gamma_power_stop_start_locations(prm, after_stop_outbound, after_stop_rewardzone, after_stop_homebound, before_stop_outbound, before_stop_rewardzone,  before_stop_homebound, channel):
@@ -178,6 +178,27 @@ def calculate_and_plot_pooled_gamma_power_stop_start_locations(prm, after_stop_o
     #difference_hb = find_gamma_power_difference(after_store_hb,before_store_hb)
 
     #vr_power_calculations_plots.plot_gamma_power_difference_stop_start_location(prm,difference_ob,difference_rz, difference_hb,channel)
+
+
+def calculate_and_plot_pooled_gamma_power_stop_start_locations_hit_miss(prm,  bs_outbound_hit, bs_outbound_miss, as_outbound_hit,as_outbound_miss, bs_rz_hit, bs_rz_miss, as_rz_hit, as_rz_miss, bs_homebound_hit, bs_homebound_miss, as_homebound_hit, as_homebound_miss, channel):
+
+    after_store_ob_hit = get_gamma_per_window(prm,as_outbound_hit[:,5]);before_store_ob_hit = get_gamma_per_window(prm,bs_outbound_hit[:,5])
+    after_store_rz_hit = get_gamma_per_window(prm,as_rz_hit[:,5]);before_store_rz_hit = get_gamma_per_window(prm,bs_rz_hit[:,5])
+    after_store_hb_hit = get_gamma_per_window(prm,as_homebound_hit[:,5]);before_store_hb_hit = get_gamma_per_window(prm,bs_homebound_hit[:,5])
+
+    after_store_ob_miss = get_gamma_per_window(prm,as_outbound_miss[:,5]);before_store_ob_miss = get_gamma_per_window(prm,bs_outbound_miss[:,5])
+    after_store_rz_miss = get_gamma_per_window(prm,as_rz_miss[:,5]);before_store_rz_miss = get_gamma_per_window(prm,bs_rz_miss[:,5])
+    after_store_hb_miss = get_gamma_per_window(prm,as_homebound_miss[:,5]);before_store_hb_miss = get_gamma_per_window(prm,bs_homebound_miss[:,5])
+
+    vr_power_calculations_plots.plot_gamma_power_stop_start_location_hit_miss(prm,after_store_ob_hit,after_store_rz_hit,after_store_hb_hit,before_store_ob_hit,before_store_rz_hit,before_store_hb_hit, after_store_ob_miss,after_store_rz_miss,after_store_hb_miss,before_store_ob_miss,before_store_rz_miss,before_store_hb_miss, channel)
+
+    #difference_ob = find_gamma_power_difference(after_store_ob,before_store_ob)
+    #difference_rz = find_gamma_power_difference(after_store_rz,before_store_rz)
+    #difference_hb = find_gamma_power_difference(after_store_hb,before_store_hb)
+
+    #vr_power_calculations_plots.plot_gamma_power_difference_stop_start_location(prm,difference_ob,difference_rz, difference_hb,channel)
+
+
 
 
 def calculate_and_plot_average_stop_start_speed(prm,before_stop, after_stop,  channel):
@@ -198,9 +219,9 @@ def calculate_power_hit_miss(prm,data, channel):
     hit_power = get_gamma_per_window(prm,hit_data[:,5])
     miss_power = get_gamma_per_window(prm,miss_data[:,5])
     vr_power_calculations_plots.plot_gamma_power_hit_miss(prm, hit_power,miss_power, channel)
-    hit_power = get_gamma_per_window(prm,hit_data[:,4])
-    miss_power = get_gamma_per_window(prm,miss_data[:,4])
-    vr_power_calculations_plots.plot_theta_power_hit_miss(prm, hit_power,miss_power, channel)
+    #hit_power = get_gamma_per_window(prm,hit_data[:,4])
+    #miss_power = get_gamma_per_window(prm,miss_data[:,4])
+    #vr_power_calculations_plots.plot_theta_power_hit_miss(prm, hit_power,miss_power, channel)
 
 
 def calculate_power_hit_miss_success(prm,data, channel):
@@ -217,10 +238,10 @@ def calculate_power_hit_miss_success(prm,data, channel):
     miss_power = get_gamma_per_window(prm,miss_data[:,5])
     success_power = get_gamma_per_window(prm,success_data[:,5])
     vr_power_calculations_plots.plot_gamma_power_hit_miss_success(prm, hit_power,miss_power, success_power,channel)
-    hit_power = get_gamma_per_window(prm,hit_data[:,4])
-    miss_power = get_gamma_per_window(prm,miss_data[:,4])
-    success_power = get_gamma_per_window(prm,success_data[:,4])
-    vr_power_calculations_plots.plot_theta_power_hit_miss_success(prm, hit_power,miss_power, success_power,channel)
+    #hit_power = get_gamma_per_window(prm,hit_data[:,4])
+    #miss_power = get_gamma_per_window(prm,miss_data[:,4])
+    #success_power = get_gamma_per_window(prm,success_data[:,4])
+    #vr_power_calculations_plots.plot_theta_power_hit_miss_success(prm, hit_power,miss_power, success_power,channel)
 
 
 def calculate_power_hit_miss_locations(prm,data, channel):
@@ -240,9 +261,9 @@ def calculate_power_hit_miss_locations(prm,data, channel):
     miss_power_ob = get_gamma_per_window(prm,miss_data_ob[:,5]);miss_power_rz = get_gamma_per_window(prm,miss_data_rz[:,5]);miss_power_hb = get_gamma_per_window(prm,miss_data_hb[:,5])
     vr_power_calculations_plots.plot_gamma_power_hit_miss_locations(prm, hit_power_ob,miss_power_ob, hit_power_rz,miss_power_rz,hit_power_hb,miss_power_hb,channel)
 
-    hit_power_ob = get_gamma_per_window(prm,hit_data_ob[:,4]);hit_power_rz = get_gamma_per_window(prm,hit_data_rz[:,4]);hit_power_hb = get_gamma_per_window(prm,hit_data_hb[:,4])
-    miss_power_ob = get_gamma_per_window(prm,miss_data_ob[:,4]);miss_power_rz = get_gamma_per_window(prm,miss_data_rz[:,4]);miss_power_hb = get_gamma_per_window(prm,miss_data_hb[:,4])
-    vr_power_calculations_plots.plot_theta_power_hit_miss_locations(prm, hit_power_ob,miss_power_ob, hit_power_rz,miss_power_rz,hit_power_hb,miss_power_hb,channel)
+    #it_power_ob = get_gamma_per_window(prm,hit_data_ob[:,4]);hit_power_rz = get_gamma_per_window(prm,hit_data_rz[:,4]);hit_power_hb = get_gamma_per_window(prm,hit_data_hb[:,4])
+    #miss_power_ob = get_gamma_per_window(prm,miss_data_ob[:,4]);miss_power_rz = get_gamma_per_window(prm,miss_data_rz[:,4]);miss_power_hb = get_gamma_per_window(prm,miss_data_hb[:,4])
+    #vr_power_calculations_plots.plot_theta_power_hit_miss_locations(prm, hit_power_ob,miss_power_ob, hit_power_rz,miss_power_rz,hit_power_hb,miss_power_hb,channel)
 
 
 def calculate_power_hit_miss_success_locations(prm,data, channel):
@@ -264,10 +285,10 @@ def calculate_power_hit_miss_success_locations(prm,data, channel):
     success_power_ob = get_gamma_per_window(prm,success_data_ob[:,5]);success_power_rz = get_gamma_per_window(prm,success_data_rz[:,5]);success_power_hb = get_gamma_per_window(prm,success_data_hb[:,5])
     vr_power_calculations_plots.plot_gamma_power_hit_miss_success_locations(prm, hit_power_ob,miss_power_ob, success_power_ob,hit_power_rz,miss_power_rz,success_power_rz,hit_power_hb,miss_power_hb,success_power_hb,channel)
 
-    hit_power_ob = get_gamma_per_window(prm,hit_data_ob[:,5]);hit_power_rz = get_gamma_per_window(prm,hit_data_rz[:,5]);hit_power_hb = get_gamma_per_window(prm,hit_data_hb[:,5])
-    miss_power_ob = get_gamma_per_window(prm,miss_data_ob[:,5]);miss_power_rz = get_gamma_per_window(prm,miss_data_rz[:,5]);miss_power_hb = get_gamma_per_window(prm,miss_data_hb[:,5])
-    success_power_ob = get_gamma_per_window(prm,success_data_ob[:,5]);success_power_rz = get_gamma_per_window(prm,success_data_rz[:,5]);success_power_hb = get_gamma_per_window(prm,success_data_hb[:,5])
-    vr_power_calculations_plots.plot_theta_power_hit_miss_success_locations(prm, hit_power_ob,miss_power_ob, success_power_ob,hit_power_rz,miss_power_rz,success_power_rz,hit_power_hb,miss_power_hb,success_power_hb,channel)
+    #hit_power_ob = get_gamma_per_window(prm,hit_data_ob[:,5]);hit_power_rz = get_gamma_per_window(prm,hit_data_rz[:,5]);hit_power_hb = get_gamma_per_window(prm,hit_data_hb[:,5])
+    #miss_power_ob = get_gamma_per_window(prm,miss_data_ob[:,5]);miss_power_rz = get_gamma_per_window(prm,miss_data_rz[:,5]);miss_power_hb = get_gamma_per_window(prm,miss_data_hb[:,5])
+    #success_power_ob = get_gamma_per_window(prm,success_data_ob[:,5]);success_power_rz = get_gamma_per_window(prm,success_data_rz[:,5]);success_power_hb = get_gamma_per_window(prm,success_data_hb[:,5])
+    #vr_power_calculations_plots.plot_theta_power_hit_miss_success_locations(prm, hit_power_ob,miss_power_ob, success_power_ob,hit_power_rz,miss_power_rz,success_power_rz,hit_power_hb,miss_power_hb,success_power_hb,channel)
 
 
 def calculate_power_speed_hit_miss(prm,data, channel):
@@ -288,11 +309,11 @@ def calculate_power_speed_hit_miss(prm,data, channel):
     vr_power_calculations_plots.plot_gamma_power_speed_hit_miss(prm, bins_hit,speed_bins_hit,bins_miss,speed_bins_miss, channel)
 
     #plot for theta
-    hit_data = np.vstack((speed_hit,theta_power_hit)); hit_data = np.transpose(hit_data)
-    miss_data = np.vstack((speed_miss,theta_power_miss)); miss_data = np.transpose(miss_data)
-    bins_hit,speed_bins_hit = bin_speed_data(prm,hit_data)
-    bins_miss,speed_bins_miss = bin_speed_data(prm,miss_data)
-    vr_power_calculations_plots.plot_theta_power_speed_hit_miss(prm, bins_hit,speed_bins_hit,bins_miss,speed_bins_miss, channel)
+    #hit_data = np.vstack((speed_hit,theta_power_hit)); hit_data = np.transpose(hit_data)
+    #miss_data = np.vstack((speed_miss,theta_power_miss)); miss_data = np.transpose(miss_data)
+    #bins_hit,speed_bins_hit = bin_speed_data(prm,hit_data)
+    #bins_miss,speed_bins_miss = bin_speed_data(prm,miss_data)
+    #vr_power_calculations_plots.plot_theta_power_speed_hit_miss(prm, bins_hit,speed_bins_hit,bins_miss,speed_bins_miss, channel)
 
 
 def calculate_power_speed_hit_miss_success(prm,data, channel):
@@ -318,13 +339,13 @@ def calculate_power_speed_hit_miss_success(prm,data, channel):
     vr_power_calculations_plots.plot_gamma_power_speed_hit_miss_success(prm, bins_hit,speed_bins_hit,bins_miss,speed_bins_miss,bins_success,speed_bins_success, channel)
 
     #plot for theta
-    hit_data = np.vstack((speed_hit,theta_power_hit)); hit_data = np.transpose(hit_data)
-    miss_data = np.vstack((speed_miss,theta_power_miss)); miss_data = np.transpose(miss_data)
-    success_data = np.vstack((speed_success,theta_power_success)); success_data = np.transpose(success_data)
-    bins_hit,speed_bins_hit = bin_speed_data(prm,hit_data)
-    bins_miss,speed_bins_miss = bin_speed_data(prm,miss_data)
-    bins_success,speed_bins_success = bin_speed_data(prm,success_data)
-    vr_power_calculations_plots.plot_theta_power_speed_hit_miss_success(prm, bins_hit,speed_bins_hit,bins_miss,speed_bins_miss,bins_success,speed_bins_success, channel)
+    #hit_data = np.vstack((speed_hit,theta_power_hit)); hit_data = np.transpose(hit_data)
+    #miss_data = np.vstack((speed_miss,theta_power_miss)); miss_data = np.transpose(miss_data)
+    #success_data = np.vstack((speed_success,theta_power_success)); success_data = np.transpose(success_data)
+    #bins_hit,speed_bins_hit = bin_speed_data(prm,hit_data)
+    #bins_miss,speed_bins_miss = bin_speed_data(prm,miss_data)
+    #bins_success,speed_bins_success = bin_speed_data(prm,success_data)
+    #vr_power_calculations_plots.plot_theta_power_speed_hit_miss_success(prm, bins_hit,speed_bins_hit,bins_miss,speed_bins_miss,bins_success,speed_bins_success, channel)
 
 
 def calculate_power_speed_hit_miss_locations(prm,data, channel):
@@ -352,12 +373,12 @@ def calculate_power_speed_hit_miss_locations(prm,data, channel):
     vr_power_calculations_plots.plot_gamma_power_speed_hit_miss_locations(prm, bins_hit_ob,speed_bins_hit_ob,bins_miss_ob,speed_bins_miss_ob,bins_hit_rz,speed_bins_hit_rz,bins_miss_rz,speed_bins_miss_rz, bins_hit_hb,speed_bins_hit_hb,bins_miss_hb,speed_bins_miss_hb, channel)
 
     #plot theta
-    hit_data_ob = np.vstack((speed_hit_ob,theta_power_hit_ob)); hit_data_ob = np.transpose(hit_data_ob)
-    miss_data_ob = np.vstack((speed_miss_ob,theta_power_miss_ob)); miss_data_ob = np.transpose(miss_data_ob)
-    hit_data_rz = np.vstack((speed_hit_rz,theta_power_hit_rz)); hit_data_rz = np.transpose(hit_data_rz)
-    miss_data_rz = np.vstack((speed_miss_rz,theta_power_miss_rz)); miss_data_rz = np.transpose(miss_data_rz)
-    hit_data_hb = np.vstack((speed_hit_hb,theta_power_hit_hb)); hit_data_hb = np.transpose(hit_data_hb)
-    miss_data_hb = np.vstack((speed_miss_hb,theta_power_miss_hb)); miss_data_hb = np.transpose(miss_data_hb)
-    bins_hit_ob,speed_bins_hit_ob = bin_speed_data(prm,hit_data_ob);bins_hit_rz,speed_bins_hit_rz = bin_speed_data(prm,hit_data_rz);bins_hit_hb,speed_bins_hit_hb = bin_speed_data(prm,hit_data_hb)
-    bins_miss_ob,speed_bins_miss_ob = bin_speed_data(prm,miss_data_ob);bins_miss_rz,speed_bins_miss_rz = bin_speed_data(prm,miss_data_rz);bins_miss_hb,speed_bins_miss_hb = bin_speed_data(prm,miss_data_hb)
-    vr_power_calculations_plots.plot_theta_power_speed_hit_miss_locations(prm, bins_hit_ob,speed_bins_hit_ob,bins_miss_ob,speed_bins_miss_ob,bins_hit_rz,speed_bins_hit_rz,bins_miss_rz,speed_bins_miss_rz, bins_hit_hb,speed_bins_hit_hb,bins_miss_hb,speed_bins_miss_hb, channel)
+    #hit_data_ob = np.vstack((speed_hit_ob,theta_power_hit_ob)); hit_data_ob = np.transpose(hit_data_ob)
+    #miss_data_ob = np.vstack((speed_miss_ob,theta_power_miss_ob)); miss_data_ob = np.transpose(miss_data_ob)
+    #hit_data_rz = np.vstack((speed_hit_rz,theta_power_hit_rz)); hit_data_rz = np.transpose(hit_data_rz)
+    #miss_data_rz = np.vstack((speed_miss_rz,theta_power_miss_rz)); miss_data_rz = np.transpose(miss_data_rz)
+    #hit_data_hb = np.vstack((speed_hit_hb,theta_power_hit_hb)); hit_data_hb = np.transpose(hit_data_hb)
+    #miss_data_hb = np.vstack((speed_miss_hb,theta_power_miss_hb)); miss_data_hb = np.transpose(miss_data_hb)
+    #bins_hit_ob,speed_bins_hit_ob = bin_speed_data(prm,hit_data_ob);bins_hit_rz,speed_bins_hit_rz = bin_speed_data(prm,hit_data_rz);bins_hit_hb,speed_bins_hit_hb = bin_speed_data(prm,hit_data_hb)
+    #bins_miss_ob,speed_bins_miss_ob = bin_speed_data(prm,miss_data_ob);bins_miss_rz,speed_bins_miss_rz = bin_speed_data(prm,miss_data_rz);bins_miss_hb,speed_bins_miss_hb = bin_speed_data(prm,miss_data_hb)
+    #vr_power_calculations_plots.plot_theta_power_speed_hit_miss_locations(prm, bins_hit_ob,speed_bins_hit_ob,bins_miss_ob,speed_bins_miss_ob,bins_hit_rz,speed_bins_hit_rz,bins_miss_rz,speed_bins_miss_rz, bins_hit_hb,speed_bins_hit_hb,bins_miss_hb,speed_bins_miss_hb, channel)

@@ -19,6 +19,7 @@ def stack_datasets(prm,channel_data_all,channel_data_all_spikes,theta,gamma):
     trials = np.load(prm.get_filepath() + "Behaviour/Data/trial_numbers.npy")
     location = np.load(prm.get_filepath() + "Behaviour/Data/location.npy")
     speed = np.load(prm.get_filepath() + "Behaviour/Data/speed.npy")
+    trial_type = np.load(prm.get_filepath() + "Behaviour/Data/con_trial_type.npy")
 
     #get all your data arrays in the same shape and order so you can stack them together
     channel_all_data = np.transpose(channel_data_all[0,:])
@@ -31,7 +32,7 @@ def stack_datasets(prm,channel_data_all,channel_data_all_spikes,theta,gamma):
     gamma = vr_process_movement.remove_beginning_and_end(prm,gamma)# remove start of data(1ms)
 
     #make an array with the data
-    x = np.vstack((trials, location, channel_all_data, channel_data_all_spikes,theta,gamma, speed))
+    x = np.vstack((trials, location, channel_all_data, channel_data_all_spikes,theta,gamma, speed, trial_type))
     data = np.transpose(x)
 
     print('datasets stacked')
@@ -42,17 +43,17 @@ def stack_datasets(prm,channel_data_all,channel_data_all_spikes,theta,gamma):
 def find_before_and_after_stops(prm,data):
 
     moving = False
-    before_stop = np.zeros((0,7))
-    after_stop = np.zeros((0,7))
+    before_stop = np.zeros((0,data.shape[1]))
+    after_stop = np.zeros((0,data.shape[1]))
     for rowcount,row in enumerate(data):
         if(data[rowcount, 6]<=0.7 and moving): # if speed is below threshold
             moving = False
             after_stop = np.vstack((after_stop, data[rowcount:rowcount+7500,:])) # location, (beaconed/non-beaconed/probe), trialid, reward(YES/NO)
-            before_stop = np.vstack((before_stop, data[rowcount-7500:rowcount,:])) # location, (beaconed/non-beaconed/probe), trialid, reward(YES/NO)
+            #before_stop = np.vstack((before_stop, data[rowcount-7500:rowcount,:])) # location, (beaconed/non-beaconed/probe), trialid, reward(YES/NO)
 
         if(data[rowcount, 6]>4 and not moving):
             moving = True
-            #before_stop = np.vstack((before_stop, data[rowcount:rowcount+7500,:])) # location, (beaconed/non-beaconed/probe), trialid, reward(YES/NO)
+            before_stop = np.vstack((before_stop, data[rowcount:rowcount+7500,:])) # location, (beaconed/non-beaconed/probe), trialid, reward(YES/NO)
 
     print('Extracted 250 ms before and after stops')
 
@@ -63,7 +64,7 @@ def split_locations(prm,data):
 
     #split data based on location along the track
     outbound = data[np.where(np.logical_and(data[:,1] > 30, data[:,1] < 80))]
-    rewardzone = data[np.where(np.logical_and(data[:,1] > 90, data[:,1] < 110))]
+    rewardzone = data[np.where(np.logical_and(data[:,1] > 80, data[:,1] < 110))]
     homebound = data[np.where(np.logical_and(data[:,1] > 110, data[:,1] < 170))]
 
     print('location split')
@@ -149,6 +150,17 @@ def stop_start_power_spectra_locations(prm,before_stop_outbound, before_stop_rew
 
     #power spectra for theta and gamma
     vr_track_location_plots.plot_power_spectrum_track_locations(prm, after_stop_outbound, after_stop_rewardzone, after_stop_homebound, before_stop_outbound, before_stop_rewardzone,  before_stop_homebound, channel)
+
+
+def stop_start_power_spectra_locations_hit_miss(prm,bs_outbound_hit, bs_outbound_miss, as_outbound_hit,as_outbound_miss, bs_rz_hit, bs_rz_miss, as_rz_hit, as_rz_miss, bs_homebound_hit, bs_homebound_miss, as_homebound_hit, as_homebound_miss, channel):
+
+    #example data
+    # power spectra for just gamma activity
+    #vr_track_location_plots.plot_power_spectrum_track_locations_gamma(prm, after_stop_outbound[:,5], after_stop_rewardzone[:,5], after_stop_homebound[:,5], before_stop_outbound[:,5], before_stop_rewardzone[:,5],  before_stop_homebound[:,5], channel)
+    #vr_track_location_plots.plot_power_spectrum_track_locations_gamma2(prm, after_stop_outbound[:,5], after_stop_rewardzone[:,5], after_stop_homebound[:,5], before_stop_outbound[:,5], before_stop_rewardzone[:,5],  before_stop_homebound[:,5], channel)
+    vr_track_location_plots.plot_power_spectrum_track_locations_hit_miss_gamma(prm, bs_outbound_hit[:,5], bs_outbound_miss[:,5], as_outbound_hit[:,5],as_outbound_miss[:,5], bs_rz_hit[:,5], bs_rz_miss[:,5], as_rz_hit[:,5], as_rz_miss[:,5], bs_homebound_hit[:,5], bs_homebound_miss[:,5], as_homebound_hit[:,5], as_homebound_miss[:,5], channel)
+
+
 
 
 def power_spectra_speed(prm,data, channel):
