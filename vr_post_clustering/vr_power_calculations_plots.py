@@ -869,7 +869,7 @@ def plot_gamma_power_hit_miss_locations(prm, hit_power_ob,miss_power_ob, hit_pow
     ax.set_xticklabels(['Hit', 'Miss'])
     ax.set_yticklabels(['','', '', '', '', ''])
 
-    print('Average gamma power in reward zone : hit trials = ' + str(round(np.nanmean(hit_power_rz),2)) + ' +/- ' + str(round(stats.sem(hit_power_rz),2)) + ' miss trials = ' + str(round(np.nanmean(miss_power_rz),2)) + ' +/- ' + str(round(stats.sem(miss_power_rz)),2))
+    print('Average gamma power in reward zone : hit trials = ' + str(round(np.nanmean(hit_power_rz),2)) + ' +/- ' + str(round(stats.sem(hit_power_rz),2)) + ' miss trials = ' + str(round(np.nanmean(miss_power_rz),2)) + ' +/- ' + str(round(stats.sem(miss_power_rz),2)))
 
     # reward zone
     ax = fig.add_subplot(133)
