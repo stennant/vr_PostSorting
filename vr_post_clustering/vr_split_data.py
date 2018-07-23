@@ -52,8 +52,6 @@ def save_indicies_for_movement_and_stationary(prm):
     return moves, stationary
 
 
-
-
 # split the data based on previously saved indicies
 def split_movement_stationary_channel(prm, channel_all_data):
 
@@ -183,10 +181,10 @@ def split_light_nolight_movement_stationary(prm, channel_all_data):
     return moves_light, stationary_light, moves_nolight, stationary_nolight
 
 
-def calculate_miss_trials(prm, trials, store):
-    trial_numbers = np.unique(trials)
-    hit_trials = np.unique(store)
 
+def calculate_miss_trials(prm, trials, store, success_trials):
+    trial_numbers = np.unique(trials)
+    hit_trials = np.hstack((np.unique(store), np.unique(success_trials))) # add hit and successful trials
     seq = np.hstack((trial_numbers,hit_trials))
     unique_trials, unique_counts = np.unique(seq, return_counts=True)
     miss_trials = unique_trials[np.where(unique_counts[:] == 1)]
@@ -204,35 +202,46 @@ def calculate_hit_trials(prm):
     array = np.vstack((location, speed, trials)); array = np.transpose(array)
     trial_numbers = np.unique(array[:,2])
 
-    moving = False
-    store = []
+    hit_store = []
+    success_store = []
+
     for tcount, trial in enumerate(trial_numbers):
+        stopped = False
+        moving = False
         data = array[array[:,2] == trial,:]
         for rowcount, row in enumerate(data):
-             if(data[rowcount,1]<=STOP_THRESHOLD and moving and data[rowcount,0] > 88 and data[rowcount, 0] < 110): # if speed is below threshold
+             if(data[rowcount,1]<=STOP_THRESHOLD and moving and not stopped and data[rowcount,0] > 88 and data[rowcount, 0] < 110): # if speed is below threshold
                 moving = False
                 trial = data[rowcount,2]
-                store = np.append(store,trial)
+                success_store = np.append(success_store,trial)
+             if(data[rowcount,1]<=STOP_THRESHOLD and moving and stopped and data[rowcount,0] > 88 and data[rowcount, 0] < 110): # if speed is below threshold
+                moving = False
+                trial = data[rowcount,2]
+                hit_store = np.append(hit_store,trial)
+             elif (data[rowcount,1]<=STOP_THRESHOLD and moving):
+                 stopped = True
              if(row[1]>STOP_THRESHOLD and not moving):
                 moving = True
         tcount+=1
 
-    return np.array(store), trials
+    return np.array(hit_store), np.array(success_store), trials
 
 
 
 def hit_miss_indicies(prm):
 
-    hit_trials, trials = calculate_hit_trials(prm)
-    miss_trials = calculate_miss_trials(prm, trials, hit_trials)
+    hit_trials, success_trials, trials = calculate_hit_trials(prm)
+    miss_trials = calculate_miss_trials(prm, trials, hit_trials, success_trials)
 
     print('hit and miss trials split')
     np.save(prm.get_filepath() + "Behaviour/Data/hit_trials", hit_trials)
     np.save(prm.get_filepath() + "Behaviour/Data/miss_trials", miss_trials)
+    np.save(prm.get_filepath() + "Behaviour/Data/success_trials", success_trials)
 
     print('Hit and miss trials calculated')
 
     return hit_trials, miss_trials
+
 
 
 
@@ -263,6 +272,53 @@ def hit_miss_trials(prm, hit_trials, miss_trials, before_stop, after_stop):
 
     return hit_before_stop,miss_before_stop,hit_after_stop,miss_after_stop
 
+
+
+def split_all_data_hit_miss(prm,data):
+    hit_trials = np.load(prm.get_filepath() + "Behaviour/Data/hit_trials.npy")
+    miss_trials = np.load(prm.get_filepath() + "Behaviour/Data/miss_trials.npy")
+
+    trials_hit = np.unique(hit_trials)
+    trials_miss = np.unique(miss_trials)
+
+    hit_data = np.zeros((0, data.shape[1]))
+    miss_data = np.zeros((0, data.shape[1]))
+
+    for tcount, trial in enumerate(trials_hit):
+        hit = data[data[:,0] == trial,:]
+        hit_data = np.vstack((hit_data,hit))
+    for tcount, trial in enumerate(trials_miss):
+        miss = data[data[:,0] == trial,:]
+        miss_data = np.vstack((miss_data,miss))
+
+    return hit_data, miss_data
+
+
+
+def split_all_data_hit_miss_success(prm,data):
+    hit_trials = np.load(prm.get_filepath() + "Behaviour/Data/hit_trials.npy")
+    miss_trials = np.load(prm.get_filepath() + "Behaviour/Data/miss_trials.npy")
+    success_trials = np.load(prm.get_filepath() + "Behaviour/Data/success_trials.npy")
+
+    trials_hit = np.unique(hit_trials)
+    trials_miss = np.unique(miss_trials)
+    trials_success = np.unique(success_trials)
+
+    hit_data = np.zeros((0, data.shape[1]))
+    miss_data = np.zeros((0, data.shape[1]))
+    success_data = np.zeros((0, data.shape[1]))
+
+    for tcount, trial in enumerate(trials_hit):
+        hit = data[data[:,0] == trial,:]
+        hit_data = np.vstack((hit_data,hit))
+    for tcount, trial in enumerate(trials_miss):
+        miss = data[data[:,0] == trial,:]
+        miss_data = np.vstack((miss_data,miss))
+    for tcount, trial in enumerate(trials_success):
+        success = data[data[:,0] == trial,:]
+        success_data = np.vstack((success_data,success))
+
+    return hit_data, miss_data,success_data
 
 
 def hit_miss_speed(prm, hit_trials, miss_trials,  middle_upper,upper, middle_lower, lower):

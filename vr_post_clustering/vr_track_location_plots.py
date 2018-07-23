@@ -11,75 +11,6 @@ import vr_process_movement
 import vr_fft
 
 
-# continuous data plots
-
-def plot_continuous_trials(prm, data, channel): # plots continuous data for an entire trial
-
-    print('plotting continuous data per trial...')
-
-    trials = np.unique(data[:,0]) # find unique trial numbers
-
-    for tcount, trial in enumerate(trials[:10]):
-        array = data[data[:,0] == trial,:]
-        start_time = 0 # in ms
-        totaltime = int((array.shape[0])/30)
-        end_time = totaltime + start_time # in ms
-
-        try:
-
-            fig = plt.figure(figsize = (14,8))
-
-            # spikes
-            ax = fig.add_subplot(411)
-            ax.plot(np.arange(0,end_time-start_time,(1/30)),array[(start_time*30):(end_time*30),2])
-            ax.set_ylabel('Amplitude (uV)', fontsize=18, labelpad = 20)
-            array_min = np.min(array[(start_time*30):(end_time*30),2])
-            ax.set_ylim(array_min-10,)
-            vr_plot_utility.adjust_spines(ax, ['left'])
-            vr_plot_utility.plot_basics(prm,ax)
-            vr_plot_utility.adjust_spine_thickness(ax)
-
-            # LFP
-            ax = fig.add_subplot(412)
-            ax.plot(np.arange(0,end_time-start_time,(1/30)),array[(start_time*30):(end_time*30),3])
-            ax.set_ylabel('Amplitude (uV)', fontsize=18, labelpad = 20)
-            ax.set_ylim(-200,200)
-            vr_plot_utility.adjust_spines(ax, ['left'])
-            vr_plot_utility.plot_basics(prm,ax)
-            vr_plot_utility.adjust_spine_thickness(ax)
-
-            # theta & gamma
-            ax = fig.add_subplot(413)
-            ax.plot(np.arange(0,end_time-start_time,(1/30)),array[(start_time*30):(end_time*30),4])
-            ax.plot(np.arange(0,end_time-start_time,(1/30)),array[(start_time*30):(end_time*30),5])
-            ax.set_ylabel('Amplitude (uV)', fontsize=18, labelpad = 20)
-            ax.set_ylim(-270,270)
-            vr_plot_utility.adjust_spines(ax, ['left'])
-            vr_plot_utility.plot_basics(prm,ax)
-            vr_plot_utility.adjust_spine_thickness(ax)
-
-            # location
-            ax = fig.add_subplot(414)
-            ax.plot(np.arange(0,end_time-start_time,(1/30)),array[(start_time*30):(end_time*30),1])
-            ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8,labelsize =18)
-            ax.locator_params(axis = 'x', nbins=7) # set number of ticks on x axis
-            ax.set_xlabel('Time (ms)', fontsize=18, labelpad = 20)
-            ax.set_ylabel('Location (cm)', fontsize=18, labelpad = 20)
-            vr_plot_utility.adjust_spines(ax, ['left','bottom'])
-            vr_plot_utility.plot_basics(prm,ax)
-            vr_plot_utility.adjust_spine_thickness(ax)
-
-            plt.subplots_adjust(hspace = .35, wspace = .35,  bottom = 0.15, left = 0.1, right = 0.92, top = 0.92)
-
-            fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/continuous/CH' + str(channel) + '_Trial' + str(tcount+1) + '.png', dpi=200)
-            plt.close()
-
-        except ValueError:
-                continue
-
-        tcount+=1
-
-
 
 # power spectras for before and after stop data
 
@@ -99,14 +30,14 @@ def plot_power_spectrum_before_after_stop(prm, before_stop, after_stop, channel)
     print('Plotting and saving power spectra for before (moving) and after (not moving) stops')
 
     # beforestop
-    fig = plt.figure(figsize = (10,4.5)) # figsize = (width, height)
+    fig = plt.figure(figsize = (8,4.5)) # figsize = (width, height)
     ax = fig.add_subplot(121)
-    ax.set_title('Before stop (moving)', fontsize = 16)
+    ax.set_title('Before stop', fontsize = 16)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     ax.xaxis.set_ticks_position('bottom')
     ax.yaxis.set_ticks_position('left')
-    ax.set_ylim(0,40)
+    ax.set_ylim(0,20)
     ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
     ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
     vr_plot_utility.adjust_spine_thickness(ax)
@@ -116,21 +47,20 @@ def plot_power_spectrum_before_after_stop(prm, before_stop, after_stop, channel)
 
     # afterstop
     ax = fig.add_subplot(122)
-    ax.set_title('After stop (stationary)', fontsize = 16)
+    ax.set_title('After stop', fontsize = 16)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     ax.xaxis.set_ticks_position('bottom')
     ax.yaxis.set_ticks_position('left')
-    ax.set_ylim(0,40)
+    ax.set_ylim(0,20)
     ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
     ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
     ax.set_xlabel('Frequency (Hz)', fontsize = 18, labelpad = 10)
     vr_plot_utility.adjust_spine_thickness(ax)
     vr_fft.power_spectrum_log(prm, ax, after_stop[:7500], 30000, color='k', label='middle upper')
-    plt.subplots_adjust(hspace = .35, wspace = .4,  bottom = 0.2, left = 0.13, right = 0.72, top = 0.87) # change spacing in figure
-    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/fft/CH' + str(channel) + '_before_and_after_stop.png', dpi=200)
+    plt.subplots_adjust(hspace = .35, wspace = .4,  bottom = 0.2, left = 0.13, right = 0.82, top = 0.87) # change spacing in figure
+    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/fft/CH' + str(channel) + '_PowerSpec_before&after.png', dpi=200)
     plt.close()
-
 
 
 def plot_power_spectrum_track_locations(prm, after_stop_outbound, after_stop_rewardzone, after_stop_homebound, before_stop_outbound, before_stop_rewardzone,  before_stop_homebound, channel):
@@ -142,7 +72,7 @@ def plot_power_spectrum_track_locations(prm, after_stop_outbound, after_stop_rew
     fig = plt.figure(figsize = (10,4.5)) # figsize = (width, height)
 
     ax = fig.add_subplot(121)
-    ax.set_title('After stop (stationary)', fontsize = 16)
+    ax.set_title('After stop', fontsize = 16)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     ax.xaxis.set_ticks_position('bottom')
@@ -158,7 +88,7 @@ def plot_power_spectrum_track_locations(prm, after_stop_outbound, after_stop_rew
     ax.set_xlabel('Frequency (Hz)', fontsize = 18, labelpad = 10)
 
     ax = fig.add_subplot(122)
-    ax.set_title('Before stop (moving)', fontsize = 16)
+    ax.set_title('Before stop', fontsize = 16)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     ax.xaxis.set_ticks_position('bottom')
@@ -174,10 +104,8 @@ def plot_power_spectrum_track_locations(prm, after_stop_outbound, after_stop_rew
     vr_plot_utility.makelegend(fig,ax, 0.7)
 
     plt.subplots_adjust(hspace = .35, wspace = .4,  bottom = 0.2, left = 0.13, right = 0.72, top = 0.87) # change spacing in figure
-    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/fft/CH' + str(channel) + '_locations.png', dpi=200)
+    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/fft/CH' + str(channel) + '_PowerSpec_before&after_locations.png', dpi=200)
     plt.close()
-
-
 
 
 def plot_power_spectrum_track_locations_gamma2(prm, after_stop_outbound, after_stop_rewardzone, after_stop_homebound, before_stop_outbound, before_stop_rewardzone,  before_stop_homebound, channel):
@@ -189,7 +117,7 @@ def plot_power_spectrum_track_locations_gamma2(prm, after_stop_outbound, after_s
     fig = plt.figure(figsize = (10,4.5)) # figsize = (width, height)
 
     ax = fig.add_subplot(121)
-    ax.set_title('After stop (stationary)', fontsize = 16)
+    ax.set_title('After stop', fontsize = 16)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     ax.xaxis.set_ticks_position('bottom')
@@ -205,7 +133,7 @@ def plot_power_spectrum_track_locations_gamma2(prm, after_stop_outbound, after_s
     ax.set_xlabel('Frequency (Hz)', fontsize = 18, labelpad = 10)
 
     ax = fig.add_subplot(122)
-    ax.set_title('Before stop (moving)', fontsize = 16)
+    ax.set_title('Before stop', fontsize = 16)
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     ax.xaxis.set_ticks_position('bottom')
@@ -221,11 +149,67 @@ def plot_power_spectrum_track_locations_gamma2(prm, after_stop_outbound, after_s
     vr_plot_utility.makelegend(fig,ax, 0.7)
     ax.set_yticklabels(['', '', '', '','',''])
     plt.subplots_adjust(hspace = .35, wspace = .4,  bottom = 0.2, left = 0.13, right = 0.72, top = 0.87) # change spacing in figure
-    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/fft/CH' + str(channel) + '_locations_gamma2.png', dpi=200)
+    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/fft/CH' + str(channel) + 'PowerSpec_before&after_locations_gamma3.png', dpi=200)
     plt.close()
 
+def plot_power_spectrum_track_locations_gamma3(prm, after_stop_outbound, after_stop_rewardzone, after_stop_homebound, before_stop_outbound, before_stop_rewardzone,  before_stop_homebound, channel):
 
 
+    print('Plotting and saving power spectra for track locations')
+
+    # outbound
+    fig = plt.figure(figsize = (12,4.5)) # figsize = (width, height)
+
+    ax = fig.add_subplot(131)
+    ax.set_title('Outbound', fontsize = 16)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.xaxis.set_ticks_position('bottom')
+    ax.yaxis.set_ticks_position('left')
+    ax.set_ylim(0,10)
+    ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+    ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+    vr_plot_utility.adjust_spine_thickness(ax)
+    vr_fft.power_spectrum_log(prm, ax, after_stop_outbound[:7500], 30000, color='k', label='After stop')
+    vr_fft.power_spectrum_log(prm, ax, before_stop_outbound[:7500], 30000, color='b', label='Before stop')
+    ax.set_ylabel('PSD (V^2/Hz)', fontsize = 18, labelpad = 10)
+    ax.set_xlabel('Frequency (Hz)', fontsize = 18, labelpad = 10)
+
+    ax = fig.add_subplot(132)
+    ax.set_title('Reward zone', fontsize = 16)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.xaxis.set_ticks_position('bottom')
+    ax.yaxis.set_ticks_position('left')
+    ax.set_ylim(0,10)
+    ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+    ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+    vr_plot_utility.adjust_spine_thickness(ax)
+    vr_fft.power_spectrum_log(prm, ax, after_stop_rewardzone[:7500], 30000, color='k', label='After stop')
+    vr_fft.power_spectrum_log(prm, ax, before_stop_rewardzone[:7500], 30000, color='b', label='Before stop')
+    ax.set_xlabel('Frequency (Hz)', fontsize = 18, labelpad = 10)
+    vr_plot_utility.makelegend(fig,ax, 0.7)
+    ax.set_yticklabels(['', '', '', '','',''])
+
+    ax = fig.add_subplot(133)
+    ax.set_title('Homebound', fontsize = 16)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.xaxis.set_ticks_position('bottom')
+    ax.yaxis.set_ticks_position('left')
+    ax.set_ylim(0,10)
+    ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+    ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+    vr_plot_utility.adjust_spine_thickness(ax)
+    vr_fft.power_spectrum_log(prm, ax, after_stop_homebound[:7500], 30000, color='k', label='After stop')
+    vr_fft.power_spectrum_log(prm, ax, before_stop_homebound[:7500], 30000, color='b', label='Before stop')
+    ax.set_xlabel('Frequency (Hz)', fontsize = 18, labelpad = 10)
+    vr_plot_utility.makelegend(fig,ax, 0.7)
+    ax.set_yticklabels(['', '', '', '','',''])
+
+    plt.subplots_adjust(hspace = .35, wspace = .4,  bottom = 0.2, left = 0.13, right = 0.72, top = 0.87) # change spacing in figure
+    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/fft/CH' + str(channel) + '_PowerSpec_before&after_locations_gamma.png', dpi=200)
+    plt.close()
 
 def plot_power_spectrum_track_locations_gamma(prm, after_stop_outbound, after_stop_rewardzone, after_stop_homebound, before_stop_outbound, before_stop_rewardzone,  before_stop_homebound, channel):
 
@@ -316,10 +300,77 @@ def plot_power_spectrum_track_locations_gamma(prm, after_stop_outbound, after_st
     ax.set_xlabel('Frequency (Hz)', fontsize = 18, labelpad = 10)
 
     plt.subplots_adjust(hspace = .4, wspace = .4,  bottom = 0.1, left = 0.13, right = 0.92, top = 0.92) # change spacing in figure
-    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/fft/CH' + str(channel) + '_locations_gamma.png', dpi=200)
+    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/fft/CH' + str(channel) + '_PowerSpec_before&after_locations_gamma.png', dpi=200)
     plt.close()
 
 
+def plot_power_spectrum_track_locations_hit_miss_gamma(prm, bs_outbound_hit, bs_outbound_miss, as_outbound_hit,as_outbound_miss, bs_rz_hit, bs_rz_miss, as_rz_hit, as_rz_miss, bs_homebound_hit, bs_homebound_miss, as_homebound_hit, as_homebound_miss, channel):
+
+
+    print('Plotting and saving power spectra for track locations')
+
+    # outbound
+    fig = plt.figure(figsize = (12,4.5)) # figsize = (width, height)
+
+    ax = fig.add_subplot(131)
+    ax.set_title('Outbound', fontsize = 16)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.xaxis.set_ticks_position('bottom')
+    ax.yaxis.set_ticks_position('left')
+    ax.set_ylim(0,10)
+    ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+    ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+    vr_plot_utility.adjust_spine_thickness(ax)
+    vr_fft.power_spectrum_log(prm, ax, as_outbound_hit[:7500], 30000, color='k', label='After stop - hit')
+    vr_fft.power_spectrum_log(prm, ax, bs_outbound_hit[:7500], 30000, color='b', label='Before stop - hit')
+
+    vr_fft.power_spectrum_log(prm, ax, as_outbound_miss[:7500], 30000, color='r', label='After stop - miss')
+    vr_fft.power_spectrum_log(prm, ax, bs_outbound_miss[:7500], 30000, color='g', label='Before stop - miss')
+    ax.set_ylabel('PSD (V^2/Hz)', fontsize = 18, labelpad = 10)
+    ax.set_xlabel('Frequency (Hz)', fontsize = 18, labelpad = 10)
+
+    ax = fig.add_subplot(132)
+    ax.set_title('Reward zone', fontsize = 16)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.xaxis.set_ticks_position('bottom')
+    ax.yaxis.set_ticks_position('left')
+    ax.set_ylim(0,10)
+    ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+    ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+    vr_plot_utility.adjust_spine_thickness(ax)
+    vr_fft.power_spectrum_log(prm, ax, as_rz_hit[:7500], 30000, color='k', label='After stop - hit')
+    vr_fft.power_spectrum_log(prm, ax, bs_rz_hit[:7500], 30000, color='b', label='Before stop - hit')
+
+    vr_fft.power_spectrum_log(prm, ax, as_rz_miss[:7500], 30000, color='r', label='After stop - miss')
+    vr_fft.power_spectrum_log(prm, ax, bs_rz_miss[:7500], 30000, color='g', label='Before stop - miss')
+    ax.set_xlabel('Frequency (Hz)', fontsize = 18, labelpad = 10)
+    vr_plot_utility.makelegend(fig,ax, 0.7)
+    ax.set_yticklabels(['', '', '', '','',''])
+
+    ax = fig.add_subplot(133)
+    ax.set_title('Homebound', fontsize = 16)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.xaxis.set_ticks_position('bottom')
+    ax.yaxis.set_ticks_position('left')
+    ax.set_ylim(0,10)
+    ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+    ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+    vr_plot_utility.adjust_spine_thickness(ax)
+    vr_fft.power_spectrum_log(prm, ax, as_homebound_hit[:7500], 30000, color='k', label='After stop - hit')
+    vr_fft.power_spectrum_log(prm, ax, bs_homebound_hit[:7500], 30000, color='b', label='Before stop - hit')
+
+    vr_fft.power_spectrum_log(prm, ax, as_homebound_miss[:7500], 30000, color='r', label='After stop - miss')
+    vr_fft.power_spectrum_log(prm, ax, bs_homebound_miss[:7500], 30000, color='g', label='Before stop - miss')
+    ax.set_xlabel('Frequency (Hz)', fontsize = 18, labelpad = 10)
+    vr_plot_utility.makelegend(fig,ax, 0.7)
+    ax.set_yticklabels(['', '', '', '','',''])
+
+    plt.subplots_adjust(hspace = .35, wspace = .4,  bottom = 0.2, left = 0.13, right = 0.72, top = 0.87) # change spacing in figure
+    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/fft/CH' + str(channel) + '_PowerSpec_before&after_locations_hit&miss_gamma.png', dpi=200)
+    plt.close()
 
 
 # plots for speed
@@ -350,9 +401,8 @@ def plot_power_spectrum_speed(prm, upper,middle_upper, middle_lower, lower, chan
     vr_plot_utility.makelegend(fig,ax, 0.7)
 
     plt.subplots_adjust(hspace = .4, wspace = .4,  bottom = 0.2, left = 0.16, right = 0.92, top = 0.92) # change spacing in figure
-    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/fft/CH' + str(channel) + '_speed.png', dpi=200)
+    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/fft/CH' + str(channel) + '_PowerSpec_SpeedQuartiles.png', dpi=200)
     plt.close()
-
 
 
 def plot_power_spectrum_speed_gamma(prm, upper,middle_upper, middle_lower, lower, channel):
@@ -361,7 +411,7 @@ def plot_power_spectrum_speed_gamma(prm, upper,middle_upper, middle_lower, lower
     print('Plotting and saving power spectra for speed quartile (gamma)')
 
     # outbound
-    fig = plt.figure(figsize = (6,6)) # figsize = (width, height)
+    fig = plt.figure(figsize = (9,6)) # figsize = (width, height)
 
     ax = fig.add_subplot(111)
     #ax.set_title('middle_upper', fontsize = 16)
@@ -369,7 +419,7 @@ def plot_power_spectrum_speed_gamma(prm, upper,middle_upper, middle_lower, lower
     ax.spines['top'].set_visible(False)
     ax.xaxis.set_ticks_position('bottom')
     ax.yaxis.set_ticks_position('left')
-    ax.set_ylim(0,6)
+    ax.set_ylim(0,10)
     ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
     ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
     vr_plot_utility.adjust_spine_thickness(ax)
@@ -381,10 +431,9 @@ def plot_power_spectrum_speed_gamma(prm, upper,middle_upper, middle_lower, lower
     ax.set_xlabel('Frequency (Hz)', fontsize = 18, labelpad = 10)
     vr_plot_utility.makelegend(fig,ax, 0.9)
 
-    plt.subplots_adjust(hspace = .4, wspace = .4,  bottom = 0.2, left = 0.16, right = 0.92, top = 0.92) # change spacing in figure
-    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/fft/CH' + str(channel) + '_speed_gamma.png', dpi=200)
+    plt.subplots_adjust(hspace = .4, wspace = .4,  bottom = 0.2, left = 0.16, right = 0.72, top = 0.92) # change spacing in figure
+    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/fft/CH' + str(channel) + '_PowerSpec_SpeedQuartiles_gamma.png', dpi=200)
     plt.close()
-
 
 
 def plot_power_spectrum_speed_locations_gamma(prm, outbound_m_upper,outbound_upper,outbound_m_lower,outbound_lower,rz_m_upper,rz_upper,rz_m_lower,rz_lower,hb_m_upper,hb_upper,hb_m_lower,hb_lower, channel):
@@ -449,12 +498,131 @@ def plot_power_spectrum_speed_locations_gamma(prm, outbound_m_upper,outbound_upp
     ax.set_xlabel('Frequency (Hz)', fontsize = 18, labelpad = 10)
 
     plt.subplots_adjust(hspace = .4, wspace = .3,  bottom = 0.2, left = 0.1, right = 0.72, top = 0.9) # change spacing in figure
-    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/fft/CH' + str(channel) + '_speed_gamma_locations.png', dpi=200)
+    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/fft/CH' + str(channel) + '_PowerSpec_SpeedQuartiles_locations_gamma.png', dpi=200)
     plt.close()
 
 
 
 # plots for hit and miss seperated data
+
+
+def plot_power_spectrum_all_hitmiss_gamma(prm, hit,miss, channel):
+
+
+    print('Plotting and saving power spectra for hit and miss trials ')
+
+    # outbound
+    fig = plt.figure(figsize = (8,6)) # figsize = (width, height)
+
+    ax = fig.add_subplot(111)
+    #ax.set_title('middle_upper', fontsize = 16)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.xaxis.set_ticks_position('bottom')
+    ax.yaxis.set_ticks_position('left')
+    ax.set_ylim(0,10)
+    ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+    ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+    vr_plot_utility.adjust_spine_thickness(ax)
+    vr_fft.power_spectrum_log(prm, ax, hit[:7500], 30000, color='k', label='Hit')
+    vr_fft.power_spectrum_log(prm, ax, miss[:7500], 30000, color='r', label='Miss')
+    ax.set_ylabel('PSD (V^2/Hz)', fontsize = 18, labelpad = 10)
+    ax.set_xlabel('Frequency (Hz)', fontsize = 18, labelpad = 10)
+    vr_plot_utility.makelegend(fig,ax, 0.9)
+
+    plt.subplots_adjust(hspace = .4, wspace = .4,  bottom = 0.2, left = 0.16, right = 0.82, top = 0.92) # change spacing in figure
+    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/fft/CH' + str(channel) + '_PowerSpec_hit&miss_gamma.png', dpi=200)
+    plt.close()
+
+
+def plot_power_spectrum_all_hitmiss_success_gamma(prm, hit,miss, success,channel):
+
+
+    print('Plotting and saving power spectra for hit and miss trials ')
+
+    # outbound
+    fig = plt.figure(figsize = (8,6)) # figsize = (width, height)
+
+    ax = fig.add_subplot(111)
+    #ax.set_title('middle_upper', fontsize = 16)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.xaxis.set_ticks_position('bottom')
+    ax.yaxis.set_ticks_position('left')
+    ax.set_ylim(0,15)
+    ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+    ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+    vr_plot_utility.adjust_spine_thickness(ax)
+    vr_fft.power_spectrum_log(prm, ax, hit[:7500], 30000, color='k', label='Hit')
+    vr_fft.power_spectrum_log(prm, ax, miss[:7500], 30000, color='r', label='Miss')
+    vr_fft.power_spectrum_log(prm, ax, success[:7500], 30000, color='b', label='Success')
+    ax.set_ylabel('PSD (V^2/Hz)', fontsize = 18, labelpad = 10)
+    ax.set_xlabel('Frequency (Hz)', fontsize = 18, labelpad = 10)
+    vr_plot_utility.makelegend(fig,ax, 0.9)
+
+    plt.subplots_adjust(hspace = .4, wspace = .4,  bottom = 0.2, left = 0.16, right = 0.82, top = 0.92) # change spacing in figure
+    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/fft/CH' + str(channel) + '_PowerSpec_hit&miss&success_gamma.png', dpi=200)
+    plt.close()
+
+
+def plot_power_spectrum_all_hitmiss(prm, hit,miss, channel):
+
+
+    print('Plotting and saving power spectra for hit and miss trials ')
+
+    # outbound
+    fig = plt.figure(figsize = (8,6)) # figsize = (width, height)
+
+    ax = fig.add_subplot(111)
+    #ax.set_title('middle_upper', fontsize = 16)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.xaxis.set_ticks_position('bottom')
+    ax.yaxis.set_ticks_position('left')
+    ax.set_ylim(0,20)
+    ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+    ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+    vr_plot_utility.adjust_spine_thickness(ax)
+    vr_fft.power_spectrum_log(prm, ax, hit[:7500], 30000, color='k', label='Hit')
+    vr_fft.power_spectrum_log(prm, ax, miss[:7500], 30000, color='r', label='Miss')
+    ax.set_ylabel('PSD (V^2/Hz)', fontsize = 18, labelpad = 10)
+    ax.set_xlabel('Frequency (Hz)', fontsize = 18, labelpad = 10)
+    vr_plot_utility.makelegend(fig,ax, 0.9)
+
+    plt.subplots_adjust(hspace = .4, wspace = .4,  bottom = 0.2, left = 0.16, right = 0.82, top = 0.92) # change spacing in figure
+    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/fft/CH' + str(channel) + '_PowerSpec_hit&miss.png', dpi=200)
+    plt.close()
+
+
+def plot_power_spectrum_all_hitmiss_success(prm, hit,miss, success, channel):
+
+
+    print('Plotting and saving power spectra for hit and miss trials ')
+
+    # outbound
+    fig = plt.figure(figsize = (8,6)) # figsize = (width, height)
+
+    ax = fig.add_subplot(111)
+    #ax.set_title('middle_upper', fontsize = 16)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.xaxis.set_ticks_position('bottom')
+    ax.yaxis.set_ticks_position('left')
+    ax.set_ylim(0,30)
+    ax.tick_params(axis='y', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+    ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8, labelsize =18)
+    vr_plot_utility.adjust_spine_thickness(ax)
+    vr_fft.power_spectrum_log(prm, ax, hit[:7500], 30000, color='k', label='Hit')
+    vr_fft.power_spectrum_log(prm, ax, miss[:7500], 30000, color='r', label='Miss')
+    vr_fft.power_spectrum_log(prm, ax, success[:7500], 30000, color='b', label='Success')
+    ax.set_ylabel('PSD (V^2/Hz)', fontsize = 18, labelpad = 10)
+    ax.set_xlabel('Frequency (Hz)', fontsize = 18, labelpad = 10)
+    vr_plot_utility.makelegend(fig,ax, 0.9)
+
+    plt.subplots_adjust(hspace = .4, wspace = .4,  bottom = 0.2, left = 0.16, right = 0.82, top = 0.92) # change spacing in figure
+    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/fft/CH' + str(channel) + '_PowerSpec_hit&miss&success.png', dpi=200)
+    plt.close()
+
 
 def plot_power_spectrum_hitmiss_gamma(prm, hit_before_stop,miss_before_stop, hit_after_stop, miss_after_stop, channel):
 
@@ -495,7 +663,7 @@ def plot_power_spectrum_hitmiss_gamma(prm, hit_before_stop,miss_before_stop, hit
     vr_plot_utility.makelegend(fig,ax, 0.7)
 
     plt.subplots_adjust(hspace = .35, wspace = .4,  bottom = 0.2, left = 0.13, right = 0.72, top = 0.87) # change spacing in figure
-    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/fft/CH' + str(channel) + '_hit_miss_gamma.png', dpi=200)
+    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/fft/CH' + str(channel) + '_PowerSpec_hit&miss_before&after_gamma.png', dpi=200)
     plt.close()
 
 
@@ -567,11 +735,80 @@ def plot_power_spectrum_hitmiss_speed_gamma(prm, hit_middle_upper,hit_upper, hit
 
 
     plt.subplots_adjust(hspace = .4, wspace = .4,  bottom = 0.1, left = 0.1, right = 0.82, top = 0.92) # change spacing in figure
-    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/fft/CH' + str(channel) + '_hit_miss_speed_gamma.png', dpi=200)
+    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/fft/CH' + str(channel) + '_PowerSpec_SpeedQuartiles_hit&miss_gamma.png', dpi=200)
     plt.close()
 
 
 
+
+
+# continuous data plots
+
+def plot_continuous_trials(prm, data, channel): # plots continuous data for an entire trial
+
+    print('plotting continuous data per trial...')
+
+    trials = np.unique(data[:,0]) # find unique trial numbers
+
+    for tcount, trial in enumerate(trials[:]):
+        array = data[data[:,0] == trial,:]
+        start_time = 0 # in ms
+        totaltime = int((array.shape[0])/30)
+        end_time = totaltime + start_time # in ms
+
+        try:
+
+            fig = plt.figure(figsize = (16,8))
+
+            # spikes
+            ax = fig.add_subplot(411)
+            ax.plot(np.arange(0,end_time-start_time,(1/30)),array[(start_time*30):(end_time*30),2])
+            ax.set_ylabel('Amplitude (uV)', fontsize=18, labelpad = 20)
+            array_min = np.min(array[(start_time*30):(end_time*30),2])
+            ax.set_ylim(array_min-10,)
+            vr_plot_utility.adjust_spines(ax, ['left'])
+            vr_plot_utility.plot_basics(prm,ax)
+            vr_plot_utility.adjust_spine_thickness(ax)
+
+            # LFP
+            ax = fig.add_subplot(412)
+            ax.plot(np.arange(0,end_time-start_time,(1/30)),array[(start_time*30):(end_time*30),3])
+            ax.set_ylabel('Amplitude (uV)', fontsize=18, labelpad = 20)
+            ax.set_ylim(-200,200)
+            vr_plot_utility.adjust_spines(ax, ['left'])
+            vr_plot_utility.plot_basics(prm,ax)
+            vr_plot_utility.adjust_spine_thickness(ax)
+
+            # theta & gamma
+            ax = fig.add_subplot(413)
+            ax.plot(np.arange(0,end_time-start_time,(1/30)),array[(start_time*30):(end_time*30),4])
+            ax.plot(np.arange(0,end_time-start_time,(1/30)),array[(start_time*30):(end_time*30),5])
+            ax.set_ylabel('Amplitude (uV)', fontsize=18, labelpad = 20)
+            ax.set_ylim(-270,270)
+            vr_plot_utility.adjust_spines(ax, ['left'])
+            vr_plot_utility.plot_basics(prm,ax)
+            vr_plot_utility.adjust_spine_thickness(ax)
+
+            # location
+            ax = fig.add_subplot(414)
+            ax.plot(np.arange(0,end_time-start_time,(1/30)),array[(start_time*30):(end_time*30),1])
+            ax.tick_params(axis='x', pad = 10, top='off', right = 'off', direction = 'out',width = 2, length = 8,labelsize =18)
+            ax.locator_params(axis = 'x', nbins=7) # set number of ticks on x axis
+            ax.set_xlabel('Time (ms)', fontsize=18, labelpad = 20)
+            ax.set_ylabel('Location (cm)', fontsize=18, labelpad = 20)
+            vr_plot_utility.adjust_spines(ax, ['left','bottom'])
+            vr_plot_utility.plot_basics(prm,ax)
+            vr_plot_utility.adjust_spine_thickness(ax)
+
+            plt.subplots_adjust(hspace = .35, wspace = .35,  bottom = 0.15, left = 0.1, right = 0.92, top = 0.92)
+
+            fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/continuous/CH' + str(channel) + '_Trial' + str(tcount+1) + '.png', dpi=200)
+            plt.close()
+
+        except ValueError:
+                continue
+
+        tcount+=1
 
 
 def make_stop_start_continuous_plot(prm, channel, before_stop, after_stop):
@@ -589,6 +826,118 @@ def make_stop_start_continuous_plot(prm, channel, before_stop, after_stop):
     fig = plt.figure(figsize = (12,10)) # figsize = (width, height)
     plot_graph(after_stop, start_time,end_time, fig)
     fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/continuous/CH' + str(channel) + '_' + 'ms_afterstop.png', dpi=200)
+    plt.close()
+
+
+def make_stop_start_locations_continuous_plot(prm, channel, after_stop_outbound, after_stop_rewardzone, after_stop_homebound, before_stop_outbound, before_stop_rewardzone,  before_stop_homebound):
+
+    print('plotting continuous data...')
+
+    start_time = 0 # in ms
+    end_time = 250 # 250 ms
+
+    fig = plt.figure(figsize = (12,10)) # figsize = (width, height)
+    plot_graph(before_stop_outbound, start_time,end_time, fig)
+    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/continuous/CH' + str(channel) + '_' + 'ms_outbound_beforestop.png', dpi=200)
+    plt.close()
+
+    fig = plt.figure(figsize = (12,10)) # figsize = (width, height)
+    plot_graph(after_stop_outbound, start_time,end_time, fig)
+    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/continuous/CH' + str(channel) + '_' + 'ms_outbound_afterstop.png', dpi=200)
+    plt.close()
+
+    fig = plt.figure(figsize = (12,10)) # figsize = (width, height)
+    plot_graph(before_stop_rewardzone, start_time,end_time, fig)
+    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/continuous/CH' + str(channel) + '_' + 'ms_rewardzone_beforestop.png', dpi=200)
+    plt.close()
+
+    fig = plt.figure(figsize = (12,10)) # figsize = (width, height)
+    plot_graph(after_stop_rewardzone, start_time,end_time, fig)
+    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/continuous/CH' + str(channel) + '_' + 'ms_rewardzone_afterstop.png', dpi=200)
+    plt.close()
+
+    fig = plt.figure(figsize = (12,10)) # figsize = (width, height)
+    plot_graph(before_stop_homebound, start_time,end_time, fig)
+    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/continuous/CH' + str(channel) + '_' + 'ms_homebound_beforestop.png', dpi=200)
+    plt.close()
+
+    fig = plt.figure(figsize = (12,10)) # figsize = (width, height)
+    plot_graph(after_stop_homebound, start_time,end_time, fig)
+    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/continuous/CH' + str(channel) + '_' + 'ms_homebound_afterstop.png', dpi=200)
+    plt.close()
+
+
+def make_stop_start_locations_hit_miss_continuous_plot(prm, channel, bs_outbound_hit, bs_outbound_miss, as_outbound_hit,as_outbound_miss, bs_rz_hit, bs_rz_miss, as_rz_hit, as_rz_miss, bs_homebound_hit, bs_homebound_miss, as_homebound_hit, as_homebound_miss):
+
+    print('plotting continuous data...')
+
+    start_time = 0 # in ms
+    end_time = 250 # 250 ms
+
+    fig = plt.figure(figsize = (12,10)) # figsize = (width, height)
+    plot_graph(bs_outbound_miss, start_time,end_time, fig)
+    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/continuous/CH' + str(channel) + '_' + 'ms_outbound_beforestop_miss.png', dpi=200)
+    plt.close()
+
+    fig = plt.figure(figsize = (12,10)) # figsize = (width, height)
+    plot_graph(as_outbound_miss, start_time,end_time, fig)
+    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/continuous/CH' + str(channel) + '_' + 'ms_outbound_afterstop_miss.png', dpi=200)
+    plt.close()
+
+    fig = plt.figure(figsize = (12,10)) # figsize = (width, height)
+    plot_graph(bs_rz_miss, start_time,end_time, fig)
+    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/continuous/CH' + str(channel) + '_' + 'ms_rewardzone_beforestop_miss.png', dpi=200)
+    plt.close()
+
+    try:
+
+        fig = plt.figure(figsize = (12,10)) # figsize = (width, height)
+        plot_graph(as_rz_miss, start_time,end_time, fig)
+        fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/continuous/CH' + str(channel) + '_' + 'ms_rewardzone_afterstop_miss.png', dpi=200)
+        plt.close()
+
+    except ValueError:
+        print('no data')
+
+    fig = plt.figure(figsize = (12,10)) # figsize = (width, height)
+    plot_graph(bs_homebound_miss, start_time,end_time, fig)
+    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/continuous/CH' + str(channel) + '_' + 'ms_homebound_beforestop_miss.png', dpi=200)
+    plt.close()
+
+    fig = plt.figure(figsize = (12,10)) # figsize = (width, height)
+    plot_graph(as_homebound_miss, start_time,end_time, fig)
+    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/continuous/CH' + str(channel) + '_' + 'ms_homebound_afterstop_miss.png', dpi=200)
+    plt.close()
+
+
+    fig = plt.figure(figsize = (12,10)) # figsize = (width, height)
+    plot_graph(bs_outbound_hit, start_time,end_time, fig)
+    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/continuous/CH' + str(channel) + '_' + 'ms_outbound_beforestop_hit.png', dpi=200)
+    plt.close()
+
+    fig = plt.figure(figsize = (12,10)) # figsize = (width, height)
+    plot_graph(as_outbound_hit, start_time,end_time, fig)
+    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/continuous/CH' + str(channel) + '_' + 'ms_outbound_afterstop_hit.png', dpi=200)
+    plt.close()
+
+    fig = plt.figure(figsize = (12,10)) # figsize = (width, height)
+    plot_graph(bs_rz_hit, start_time,end_time, fig)
+    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/continuous/CH' + str(channel) + '_' + 'ms_rewardzone_beforestop_hit.png', dpi=200)
+    plt.close()
+
+    fig = plt.figure(figsize = (12,10)) # figsize = (width, height)
+    plot_graph(as_rz_hit, start_time,end_time, fig)
+    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/continuous/CH' + str(channel) + '_' + 'ms_rewardzone_afterstop_hit.png', dpi=200)
+    plt.close()
+
+    fig = plt.figure(figsize = (12,10)) # figsize = (width, height)
+    plot_graph(bs_homebound_hit, start_time,end_time, fig)
+    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/continuous/CH' + str(channel) + '_' + 'ms_homebound_beforestop_hit.png', dpi=200)
+    plt.close()
+
+    fig = plt.figure(figsize = (12,10)) # figsize = (width, height)
+    plot_graph(as_homebound_hit, start_time,end_time, fig)
+    fig.savefig(prm.get_filepath() + 'Electrophysiology/track_location_analysis/continuous/CH' + str(channel) + '_' + 'ms_homebound_afterstop_hit.png', dpi=200)
     plt.close()
 
 
@@ -639,12 +988,6 @@ def plot_graph(array, start_time,end_time, fig):
     vr_plot_utility.adjust_spine_thickness(ax)
 
     plt.subplots_adjust(hspace = .35, wspace = .35,  bottom = 0.15, left = 0.1, right = 0.92, top = 0.92)
-
-
-
-
-
-
 
 
 

@@ -20,6 +20,9 @@ import numpy as np
 import vr_split_data
 import vr_spectrogram
 import vr_track_location_analysis
+import vr_track_location_plots
+import vr_power_calculations
+import vr_process_LFP
 
 prm = vr_parameters.Parameters()
 
@@ -55,7 +58,7 @@ Initializes parameters
 
 def init_params():
 
-    filename = 'mcos_M2_D1_2018-06-04_14-32-13'
+    filename = 'mcos_M1_D13_2018-06-16_15-00-09'
     prm.set_filepath('/Users/sarahtennant/Work/Analysis/Opto_data/mcos/' + str(filename))
     prm.set_behaviour_data_path('/Users/sarahtennant/Work/Analysis/Opto_data/mcos/' + str(filename) + '/Behaviour/Data/')
     prm.set_behaviour_analysis_path('/Users/sarahtennant/Work/Analysis/Opto_data/mcos/' + str(filename) + '/Behaviour/Analysis/')
@@ -82,7 +85,7 @@ def process_behavioural_data(prm):
     #process movement information and plot stops per trial
     vr_process_movement.save_or_open_movement_arrays(prm)
     vr_trial_types.save_or_open_trial_arrays(prm)
-    #vr_plot_stops.plot_stops(prm)
+    vr_plot_stops.plot_stops(prm)
     vr_split_data.hit_miss_indicies(prm)
     print('Behavioural data has been processed')
 
@@ -106,37 +109,31 @@ def process_continuous_data(prm, channel):
 
 def process_opto_data(prm, channel, channel_data_all, channel_data_all_spikes, theta, gamma):
     #save indicies for splitting data
-    vr_split_data.save_indicies_for_light_and_no_light(prm)
+    #vr_split_data.save_indicies_for_light_and_no_light(prm)
     light, no_light = vr_optogenetics.split_light_and_no_light_trials(prm) # need for plot stops and plotting continuous
-    vr_split_data.save_indicies_for_movement_and_stationary(prm)
+    #vr_split_data.save_indicies_for_movement_and_stationary(prm)
     # Plot some example stuff for optogenetics
     vr_plot_continuous_data.plot_continuous_opto(prm, channel_data_all,channel,light,no_light, theta, gamma,channel_data_all_spikes)
+    #vr_plot_continuous_data.plot_continuous_trials(prm, channel_data_all,channel,light,no_light, theta, gamma,channel_data_all_spikes) # plot example trials
     # split channel data by light/no light and movement / stationary
-    light_movement, nolight_movement, light_stationary, nolight_stationary = vr_split_data.split_light_nolight_movement_stationary(prm, channel_data_all)
+    #light_movement, nolight_movement, light_stationary, nolight_stationary = vr_split_data.split_light_nolight_movement_stationary(prm, channel_data_all)
     #plot power spectrums for light and no light, movement and stationary
-    vr_fft.calculate_and_plot_power_spectrum_split(prm, light_movement, nolight_movement, light_stationary, nolight_stationary, channel)
+    #vr_fft.calculate_and_plot_power_spectrum_split(prm, light_movement, nolight_movement, light_stationary, nolight_stationary, channel)
     # load and plot stops with opto highlighted - have to do this after main opto loop
-    vr_plot_stops.plot_opto_stops(prm)
+    #vr_plot_stops.plot_opto_stops(prm)
 
 
 def process_LFP_data(prm, channel, channel_data_all,channel_data_all_spikes,theta,gamma):
     data = vr_track_location_analysis.stack_datasets(prm,channel_data_all,channel_data_all_spikes,theta,gamma)#stack all datasets
     #plot continuous data per trial
-    #vr_track_location_analysis.plot_continuous_trials(prm, data, channel) # plot example trials
-    #split based on movement and stationary
-    before_stop, after_stop = vr_track_location_analysis.find_before_and_after_stops(prm,data[1000000:35000000,:])
-    vr_track_location_analysis.stop_start_power_spectra(prm, before_stop, after_stop, channel)
-    vr_track_location_analysis.make_stop_start_continuous_plot(prm, channel, before_stop, after_stop)
-    #movement/stationary power spectra
-    vr_track_location_analysis.stop_start_power_spectra_locations(prm,before_stop, after_stop, channel)
-    #plot power spectra for different speeds
-    middle_upper,upper, middle_lower, lower = vr_track_location_analysis.power_spectra_speed(prm,data[1000000:35000000,:], channel)
-    vr_track_location_analysis.power_spectra_speed_locations(prm,middle_upper,upper, middle_lower, lower, channel)
-    #above based on hit or miss trials
-    vr_track_location_analysis.hit_miss_power_spectra_locations(prm,before_stop, after_stop, channel)
-    #plot power spectra for different speeds
+    vr_track_location_plots.plot_continuous_trials(prm, data, channel) # FIGURE 1 A : CONTINUOUS DATA PER TRIAL
 
+    before_stop, after_stop = vr_process_LFP.process_movement_and_stationary(prm, data, channel)
+    move_outbound, move_rewardzone, move_homebound,still_outbound, still_rewardzone, still_homebound = vr_process_LFP.process_movement_and_stationary_locations(prm,before_stop, after_stop, channel)
+    vr_process_LFP.process_movement_and_stationary_locations_hit_miss(prm, move_outbound, move_rewardzone, move_homebound,still_outbound, still_rewardzone, still_homebound, channel)
 
+    vr_process_LFP.hit_miss_power_calculations(prm,data, channel)
+    vr_process_LFP.speed_versus_gamma_power(prm,data, channel)
 
 
 def process_a_dir(dir_name):
@@ -147,7 +144,7 @@ def process_a_dir(dir_name):
     process_behavioural_data(prm)
     #process_spike_data(prm)
 
-    for c, channel in enumerate(np.arange(1,3,1)): # loop through channels
+    for c, channel in enumerate(np.arange(2,3,1)): # loop through channels
 
         channel_data_all,channel_data_all_spikes, theta, gamma = process_continuous_data(prm, channel)
 
